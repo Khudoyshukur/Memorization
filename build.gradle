@@ -3,6 +3,7 @@ buildscript {
         compose_ui_version = '1.2.1'
         hilt_version = "2.44"
         room_version = "2.4.3"
+        coroutines_version = "1.6"
     }
 
     repositories {

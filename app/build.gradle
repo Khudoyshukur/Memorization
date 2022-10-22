@@ -43,6 +43,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+
+        freeCompilerArgs += [
+                "-Xopt-in=kotlin.RequiresOptIn"
+        ]
     }
     buildFeatures {
         compose true
@@ -78,7 +82,20 @@ dependencies {
 
     // Room
     implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
+
+    // ThreeTen (LocalDate)
+    implementation 'org.threeten:threetenbp:1.6.0'
+
+    // ********************* Testing *********************
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    testImplementation "com.github.javafaker:javafaker:0.16"
+    testImplementation 'org.mockito:mockito-core:4.8.0'
+    testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
+
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    androidTestImplementation "com.github.javafaker:javafaker:0.16"
 }
 
 kapt {
