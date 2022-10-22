@@ -1,6 +1,8 @@
 package uz.androdev.memorization.factory
 
+import com.github.javafaker.Faker
 import uz.androdev.memorization.model.input.FolderInput
+import uz.androdev.memorization.model.model.Folder
 import java.util.*
 
 /**
@@ -15,5 +17,17 @@ object FolderFactory {
         return FolderInput(
             title = UUID.randomUUID().toString()
         )
+    }
+
+    fun createFolder(): Folder {
+        val faker = Faker()
+        return Folder(
+            id = randomId(),
+            title = faker.funnyName().name()
+        )
+    }
+
+    private fun randomId(): Long {
+        return (Long.MIN_VALUE..Long.MAX_VALUE).random()
     }
 }
