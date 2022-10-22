@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Memorization</string>
+    <string name="progress_bar">Progress Bar</string>
+    <string name="empty_folder">Empty Folder</string>
+    <string name="no_folders_message">You haven\'t created any folders yet</string>
+    <string name="folders_list">Folders List</string>
 </resources>
