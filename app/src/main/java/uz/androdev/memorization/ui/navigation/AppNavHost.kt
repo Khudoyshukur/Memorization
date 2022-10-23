@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import uz.androdev.memorization.ui.screen.FolderScreenRoute
 
 /**
  * Created by: androdev
@@ -23,7 +24,11 @@ fun AppNavHost(
 ) {
     NavHost(navController = navController, startDestination = Screen.FoldersScreen.route) {
         composable(Screen.FoldersScreen.route) {
+            FolderScreenRoute(
+                onNavigateToItemsScreen = {
 
+                }
+            )
         }
     }
 }

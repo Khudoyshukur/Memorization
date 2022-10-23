@@ -1,6 +1,8 @@
 package uz.androdev.memorization.data.repository
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
@@ -22,11 +24,13 @@ import uz.androdev.memorization.factory.FolderFactory
 class TestFolderRepository {
     private lateinit var folderRepository: FolderRepository
     private lateinit var folderDataSource: FolderDataSource
+    private lateinit var testDispatcher: CoroutineDispatcher
 
     @Before
     fun setUp() {
+        testDispatcher = UnconfinedTestDispatcher()
         folderDataSource = mock()
-        folderRepository = FolderRepositoryImpl(folderDataSource)
+        folderRepository = FolderRepositoryImpl(folderDataSource, testDispatcher)
     }
 
     @Test

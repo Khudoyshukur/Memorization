@@ -4,4 +4,14 @@
     <string name="empty_folder">Empty Folder</string>
     <string name="no_folders_message">You haven\'t created any folders yet</string>
     <string name="folders_list">Folders List</string>
+    <string name="add_folder">Add folder</string>
+    <string name="cancel">Cancel</string>
+    <string name="create">Create</string>
+    <string name="create_folder">Create Folder</string>
+    <string name="error_icon">Error Icon</string>
+    <string name="please_fill_the_field">Please, fill the field</string>
+    <string name="operation_failed">Operation failed</string>
+    <string name="create_folder_dialog">Create Folder Dialog</string>
+    <string name="create_folder_input_field">Create folder input field</string>
+    <string name="folder_icon">Folder Icon</string>
 </resources>

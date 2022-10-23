@@ -14,17 +14,17 @@ sealed interface UseCaseResponse<out Data : Any, out Failure : UseCaseFailure> {
 }
 
 inline fun <Data : Any, Failure : UseCaseFailure> UseCaseResponse<Data, Failure>.onSuccess(
-    action: () -> Unit
+    action: (data: Data) -> Unit
 ) {
     if (this is UseCaseResponse.Success) {
-        action.invoke()
+        action.invoke(this.data)
     }
 }
 
 inline fun <Data : Any, Failure : UseCaseFailure> UseCaseResponse<Data, Failure>.onFailure(
-    action: () -> Unit
+    action: (failure: Failure) -> Unit
 ) {
     if (this is UseCaseResponse.Failure) {
-        action.invoke()
+        action.invoke(this.data)
     }
 }

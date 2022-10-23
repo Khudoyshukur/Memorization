@@ -1,5 +1,6 @@
 package uz.androdev.memorization.domain.usecase.impl
 
+import android.util.Log
 import uz.androdev.memorization.data.repository.FolderRepository
 import uz.androdev.memorization.domain.response.UnitFailure
 import uz.androdev.memorization.domain.response.UseCaseResponse
@@ -24,5 +25,9 @@ class CreateFolderUseCaseImpl @Inject constructor(
         } catch (t: Throwable) {
             UseCaseResponse.Failure(UnitFailure)
         }
+    }
+
+    companion object {
+        private const val TAG = "CreateFolderUseCaseImpl"
     }
 }

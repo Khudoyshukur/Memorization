@@ -3,8 +3,8 @@ package uz.androdev.memorization.ui.component
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Divider
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,11 +26,12 @@ import java.util.*
 
 @Composable
 fun FoldersListComponent(
+    modifier: Modifier = Modifier,
     folders: List<Folder>?,
     onFolderClicked: (Folder) -> Unit = {}
 ) {
     if (folders == null) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = modifier.fillMaxSize()) {
             CircularProgressIndicator(
                 modifier = Modifier
                     .height(50.dp)
@@ -41,7 +42,7 @@ fun FoldersListComponent(
         }
     } else {
         if (folders.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = modifier.fillMaxSize()) {
                 NoItemsComponent(
                     modifier = Modifier.align(Alignment.Center),
                     message = stringResource(id = R.string.no_folders_message)
@@ -49,7 +50,7 @@ fun FoldersListComponent(
             }
         } else {
             LazyColumn(
-                modifier = Modifier
+                modifier = modifier
                     .padding(16.dp)
                     .testTag(stringResource(id = R.string.folders_list))
             ) {
