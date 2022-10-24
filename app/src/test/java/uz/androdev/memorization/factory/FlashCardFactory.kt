@@ -4,6 +4,7 @@ import com.github.javafaker.Faker
 import org.threeten.bp.LocalDateTime
 import uz.androdev.memorization.model.entity.FlashCardEntity
 import uz.androdev.memorization.model.input.FlashCardInput
+import uz.androdev.memorization.model.model.FlashCard
 
 /**
  * Created by: androdev
@@ -23,11 +24,20 @@ object FlashCardFactory {
         )
     }
 
-    fun createNewFlashCard(id: Long = 0, folderId: Long): FlashCardEntity {
+    fun createNewFlashCardEntity(id: Long = 0, folderId: Long): FlashCardEntity {
         val faker = Faker()
         return FlashCardEntity(
             id = id,
             folderId = folderId,
+            question = faker.lorem().characters(),
+            answer = faker.lorem().characters()
+        )
+    }
+
+    fun createNewFlashCard(): FlashCard {
+        val faker = Faker()
+        return FlashCard(
+            id = 1,
             question = faker.lorem().characters(),
             answer = faker.lorem().characters()
         )

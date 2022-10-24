@@ -1,10 +1,8 @@
 package uz.androdev.memorization.data.datasource
 
 import android.database.sqlite.SQLiteConstraintException
-import androidx.compose.ui.graphics.vector.Path
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -19,7 +17,6 @@ import uz.androdev.memorization.data.db.dao.FlashCardDao
 import uz.androdev.memorization.data.fake.FakeFlashCardDao
 import uz.androdev.memorization.factory.FlashCardFactory
 import uz.androdev.memorization.factory.FolderFactory
-import uz.androdev.memorization.model.model.FlashCard
 
 /**
  * Created by: androdev
@@ -72,7 +69,7 @@ class TestRoomFlashCardDataSourceImpl {
     fun getFlashCards_getsFlashCardsFromDao() = runTest {
         val folder = FolderFactory.createFolder()
         val savedFlashCards = List(10) {
-            FlashCardFactory.createNewFlashCard(folderId = folder.id).also {
+            FlashCardFactory.createNewFlashCardEntity(folderId = folder.id).also {
                 flashCardDao.insertFlashCard(it)
             }
         }
