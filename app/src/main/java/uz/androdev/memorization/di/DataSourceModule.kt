@@ -4,7 +4,9 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import uz.androdev.memorization.data.datasource.FlashCardDataSource
 import uz.androdev.memorization.data.datasource.FolderDataSource
+import uz.androdev.memorization.data.datasource.impl.RoomFlashCardDataSourceImpl
 import uz.androdev.memorization.data.datasource.impl.RoomFolderDataSourceImpl
 
 /**
@@ -19,4 +21,11 @@ import uz.androdev.memorization.data.datasource.impl.RoomFolderDataSourceImpl
 interface FolderDataSourceModule {
     @Binds
     fun bindFolderDataSource(impl: RoomFolderDataSourceImpl): FolderDataSource
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+interface FlashCardDataSourceModule {
+    @Binds
+    fun bindFlashCardDataSource(impl: RoomFlashCardDataSourceImpl): FlashCardDataSource
 }

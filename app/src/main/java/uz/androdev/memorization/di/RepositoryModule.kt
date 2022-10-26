@@ -4,7 +4,9 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import uz.androdev.memorization.data.repository.FlashCardRepository
 import uz.androdev.memorization.data.repository.FolderRepository
+import uz.androdev.memorization.data.repository.impl.FlashCardRepositoryImpl
 import uz.androdev.memorization.data.repository.impl.FolderRepositoryImpl
 
 /**
@@ -19,4 +21,11 @@ import uz.androdev.memorization.data.repository.impl.FolderRepositoryImpl
 interface FolderRepositoryModule {
     @Binds
     fun bindFolderRepository(impl: FolderRepositoryImpl): FolderRepository
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+interface FlashCardRepositoryModule {
+    @Binds
+    fun bindFlashCardRepository(impl: FlashCardRepositoryImpl): FlashCardRepository
 }

@@ -5,9 +5,13 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
+import uz.androdev.memorization.domain.usecase.CreateFlashCardUseCase
 import uz.androdev.memorization.domain.usecase.CreateFolderUseCase
+import uz.androdev.memorization.domain.usecase.GetFlashCardsUseCase
 import uz.androdev.memorization.domain.usecase.GetFoldersUseCase
+import uz.androdev.memorization.domain.usecase.impl.CreateFlashCardUseCaseImpl
 import uz.androdev.memorization.domain.usecase.impl.CreateFolderUseCaseImpl
+import uz.androdev.memorization.domain.usecase.impl.GetFlashCardsUseCaseImpl
 import uz.androdev.memorization.domain.usecase.impl.GetFoldersUseCaseImpl
 
 /**
@@ -25,4 +29,10 @@ interface UseCaseModule {
 
     @Binds
     fun bindGetFoldersUseCase(impl: GetFoldersUseCaseImpl): GetFoldersUseCase
+
+    @Binds
+    fun bindCreateFlashCardUseCase(impl: CreateFlashCardUseCaseImpl): CreateFlashCardUseCase
+
+    @Binds
+    fun bindGetFlashCardsUseCase(impl: GetFlashCardsUseCaseImpl): GetFlashCardsUseCase
 }

@@ -7,6 +7,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import uz.androdev.memorization.data.db.AppDatabase
+import uz.androdev.memorization.data.db.dao.FlashCardDao
 import uz.androdev.memorization.data.db.dao.FolderDao
 
 /**
@@ -31,5 +32,14 @@ object FoldersDaoModule {
     @Provides
     fun provideFoldersDao(appDatabase: AppDatabase): FolderDao {
         return appDatabase.folderDao
+    }
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+object FlashCardDaoModule {
+    @Provides
+    fun provideFlashCardDao(appDatabase: AppDatabase): FlashCardDao {
+        return appDatabase.flashCardDao
     }
 }
