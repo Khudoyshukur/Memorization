@@ -16,6 +16,11 @@ import uz.androdev.memorization.ui.screen.FolderScreenRoute
 
 sealed class Screen(val route: String) {
     object FoldersScreen : Screen("folders_screen")
+    class FlashCardsScreen : Screen("flash_cards/{${KEY_FOLDER_ID}}") {
+        companion object {
+            const val KEY_FOLDER_ID = "KEY_FOLDER_ID"
+        }
+    }
 }
 
 @Composable
