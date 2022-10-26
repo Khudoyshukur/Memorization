@@ -1,5 +1,7 @@
 package uz.androdev.memorization.domain.usecase
 
+import uz.androdev.memorization.domain.response.UseCaseFailure
+import uz.androdev.memorization.domain.response.UseCaseResponse
 import uz.androdev.memorization.model.input.FlashCardInput
 
 /**
@@ -10,5 +12,10 @@ import uz.androdev.memorization.model.input.FlashCardInput
  */
 
 interface CreateFlashCardUseCase {
-    suspend operator fun invoke(flashCardInput: FlashCardInput)
+    suspend operator fun invoke(flashCardInput: FlashCardInput): UseCaseResponse<Unit, CreateFlashCardUseCaseFailure>
+}
+
+sealed interface CreateFlashCardUseCaseFailure : UseCaseFailure {
+    object CouldNotCreateFlashCard : CreateFlashCardUseCaseFailure
+    object FolderDoesNotExist : CreateFlashCardUseCaseFailure
 }

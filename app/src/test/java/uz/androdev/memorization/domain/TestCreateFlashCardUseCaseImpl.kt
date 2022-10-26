@@ -1,17 +1,21 @@
 package uz.androdev.memorization.domain
 
+import android.database.sqlite.SQLiteConstraintException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
-import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.whenever
 import uz.androdev.memorization.data.repository.FlashCardRepository
+import uz.androdev.memorization.domain.response.UseCaseResponse
+import uz.androdev.memorization.domain.usecase.CreateFlashCardUseCaseFailure
 import uz.androdev.memorization.domain.usecase.impl.CreateFlashCardUseCaseImpl
 import uz.androdev.memorization.factory.FlashCardFactory
-import uz.androdev.memorization.factory.FolderFactory
 
 /**
  * Created by: androdev
@@ -37,5 +41,42 @@ class TestCreateFlashCardUseCaseImpl {
         createFlashCardUseCaseImpl(input)
 
         Mockito.verify(flashCardRepository).createFlashCard(eq(input))
+    }
+
+    @Test
+    fun invoke_shouldReturnSuccess_whenRepositoryInvokesWithoutError() = runTest {
+        whenever(flashCardRepository.createFlashCard(any()))
+            .thenReturn(Unit)
+
+        val resp = createFlashCardUseCaseImpl.invoke(FlashCardFactory.createFlashCardInput())
+
+        assertEquals(resp, UseCaseResponse.Success(Unit))
+    }
+
+    @Test
+    fun invoke_shouldReturnFolderNotExists_whenRepositoryReturnsSqlConstraintException() = runTest {
+        whenever(flashCardRepository.createFlashCard(any()))
+            .thenThrow(SQLiteConstraintException::class.java)
+
+        val resp = createFlashCardUseCaseImpl.invoke(FlashCardFactory.createFlashCardInput())
+
+        assertEquals(
+            resp,
+            UseCaseResponse.Failure(CreateFlashCardUseCaseFailure.FolderDoesNotExist)
+        )
+    }
+
+
+    @Test
+    fun invoke_shouldReturnCannotCreateFolder_whenRepositoryReturnsException() = runTest {
+        whenever(flashCardRepository.createFlashCard(any()))
+            .thenThrow(RuntimeException())
+
+        val resp = createFlashCardUseCaseImpl.invoke(FlashCardFactory.createFlashCardInput())
+
+        assertEquals(
+            resp,
+            UseCaseResponse.Failure(CreateFlashCardUseCaseFailure.CouldNotCreateFlashCard)
+        )
     }
 }
