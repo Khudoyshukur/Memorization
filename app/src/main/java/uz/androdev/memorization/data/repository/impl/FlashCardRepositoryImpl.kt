@@ -29,4 +29,8 @@ class FlashCardRepositoryImpl @Inject constructor(
     override suspend fun updateFlashCard(flashCard: FlashCard) {
         flashCardDataSource.updateFlashCard(flashCard)
     }
+
+    override suspend fun removeFlashCard(flashCard: FlashCard) {
+        flashCardDataSource.removeFlashCard(flashCard)
+    }
 }

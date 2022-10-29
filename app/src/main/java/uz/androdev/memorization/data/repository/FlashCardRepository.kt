@@ -20,4 +20,6 @@ interface FlashCardRepository {
 
     @Throws(IllegalArgumentException::class)
     suspend fun updateFlashCard(flashCard: FlashCard)
+
+    suspend fun removeFlashCard(flashCard: FlashCard)
 }

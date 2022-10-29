@@ -32,4 +32,7 @@ interface UseCaseModule {
 
     @Binds
     fun bindUpdateFlashCardUseCase(impl: UpdateFlashCardUseCaseImpl): UpdateFlashCardUseCase
+
+    @Binds
+    fun bindRemoveFlashCardUseCase(impl: RemoveFlashCardUseCaseImpl): RemoveFlashCardUseCase
 }

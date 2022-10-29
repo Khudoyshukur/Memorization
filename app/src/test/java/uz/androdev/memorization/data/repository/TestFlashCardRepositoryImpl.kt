@@ -64,4 +64,12 @@ class TestFlashCardRepositoryImpl {
 
         Mockito.verify(flashCardDataSource).updateFlashCard(eq(flashCard))
     }
+
+    @Test
+    fun removeFlashCard_shouldDelegateToDataSource() = runTest {
+        val flashCard = FlashCardFactory.createNewFlashCard()
+        flashCardRepositoryImpl.removeFlashCard(flashCard)
+
+        Mockito.verify(flashCardDataSource).removeFlashCard(eq(flashCard))
+    }
 }
