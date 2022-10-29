@@ -20,4 +20,14 @@ object FlashCardFactory {
             answer = faker.lorem().characters()
         )
     }
+
+    fun createFlashCards(size: Int): List<FlashCard> {
+        return List(size) {
+            FlashCard(
+                id = it.toLong(),
+                question = faker.lorem().characters(),
+                answer = faker.lorem().characters()
+            )
+        }
+    }
 }
