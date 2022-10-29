@@ -132,4 +132,9 @@ class TestFlashCardDao {
 
         assertEquals(response, flashCardEntity)
     }
+
+    @Test
+    fun getFlashCardById_whenNonExistentFlashCardRequested_shouldReturnNull() = runTest {
+        assertEquals(null, flashCardDao.getFlashCardById(-10L))
+    }
 }
