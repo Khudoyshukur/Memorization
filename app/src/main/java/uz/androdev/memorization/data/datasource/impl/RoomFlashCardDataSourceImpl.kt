@@ -44,7 +44,17 @@ class RoomFlashCardDataSourceImpl @Inject constructor(
         }
     }
 
+    @Throws(IllegalArgumentException::class)
     override suspend fun updateFlashCard(flashCard: FlashCard) {
-        TODO("Not yet implemented")
+        val flashCardEntity = flashCardDao.getFlashCardById(flashCard.id)
+            ?: throw IllegalArgumentException("Flash Card not found!")
+
+        flashCardDao.insertFlashCard(
+            flashCardEntity.copy(
+                question = flashCard.question,
+                answer = flashCard.answer,
+                updatedAt = LocalDateTime.now()
+            )
+        )
     }
 }
