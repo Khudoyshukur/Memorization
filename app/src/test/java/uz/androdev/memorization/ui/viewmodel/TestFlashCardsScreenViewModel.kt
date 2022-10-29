@@ -23,7 +23,7 @@ import uz.androdev.memorization.domain.usecase.CreateFlashCardUseCase
 import uz.androdev.memorization.domain.usecase.CreateFlashCardUseCaseFailure
 import uz.androdev.memorization.domain.usecase.GetFlashCardsUseCase
 import uz.androdev.memorization.factory.FlashCardFactory
-import uz.androdev.memorization.ui.navigation.Screen
+import uz.androdev.memorization.ui.navigation.Arguments
 
 /**
  * Created by: androdev
@@ -53,7 +53,7 @@ class TestFlashCardsScreenViewModel {
         whenever(getFlashCardsUseCase.invoke(any()))
             .thenReturn(flowOf(emptyList()))
 
-        whenever(savedStateHandle.get<Long>(Screen.FlashCardsScreen.KEY_FOLDER_ID))
+        whenever(savedStateHandle.get<Long>(Arguments.ARGUMENT_FOLDER_ID))
             .thenReturn(folderId)
 
         viewModel = FlashCardsScreenViewModel(

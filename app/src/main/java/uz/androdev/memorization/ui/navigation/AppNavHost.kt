@@ -1,10 +1,12 @@
 package uz.androdev.memorization.ui.navigation
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import uz.androdev.memorization.ui.navigation.Arguments.ARGUMENT_FOLDER_ID
 import uz.androdev.memorization.ui.screen.FolderScreenRoute
 
 /**
@@ -16,9 +18,9 @@ import uz.androdev.memorization.ui.screen.FolderScreenRoute
 
 sealed class Screen(val route: String) {
     object FoldersScreen : Screen("folders_screen")
-    class FlashCardsScreen : Screen("flash_cards/{${KEY_FOLDER_ID}}") {
-        companion object {
-            const val KEY_FOLDER_ID = "KEY_FOLDER_ID"
+    object FlashCardsScreen : Screen("flash_cards/{${ARGUMENT_FOLDER_ID}}") {
+        fun getNavigateRoute(folderId: Long): String {
+            return "flash_cards/$folderId"
         }
     }
 }
@@ -31,9 +33,15 @@ fun AppNavHost(
         composable(Screen.FoldersScreen.route) {
             FolderScreenRoute(
                 onNavigateToItemsScreen = {
-
+                    navController.navigate(
+                        Screen.FlashCardsScreen.getNavigateRoute(it.id)
+                    )
                 }
             )
+        }
+
+        composable(Screen.FlashCardsScreen.route) {
+            Text(text = "FlashCardsScreen")
         }
     }
 }

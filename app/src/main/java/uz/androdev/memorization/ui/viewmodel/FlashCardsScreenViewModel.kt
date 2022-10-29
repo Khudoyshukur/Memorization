@@ -11,7 +11,7 @@ import uz.androdev.memorization.domain.usecase.CreateFlashCardUseCase
 import uz.androdev.memorization.domain.usecase.GetFlashCardsUseCase
 import uz.androdev.memorization.model.input.FlashCardInput
 import uz.androdev.memorization.model.model.FlashCard
-import uz.androdev.memorization.ui.navigation.Screen
+import uz.androdev.memorization.ui.navigation.Arguments
 import javax.inject.Inject
 
 /**
@@ -28,7 +28,7 @@ class FlashCardsScreenViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val folderId: Long =
-        checkNotNull(savedStateHandle[Screen.FlashCardsScreen.KEY_FOLDER_ID])
+        checkNotNull(savedStateHandle[Arguments.ARGUMENT_FOLDER_ID])
     private val failedToCreateFlashCardState = MutableStateFlow(false)
     private val creatingFlashCardState = MutableStateFlow(false)
 
