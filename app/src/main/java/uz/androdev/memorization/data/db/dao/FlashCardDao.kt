@@ -26,4 +26,7 @@ interface FlashCardDao {
 
     @Query("select * from flash_cards where id=:id")
     suspend fun getFlashCardById(id: Long): FlashCardEntity?
+
+    @Query("delete from flash_cards where id=:id")
+    suspend fun removeFlashCard(id: Long)
 }

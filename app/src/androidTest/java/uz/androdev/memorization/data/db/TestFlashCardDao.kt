@@ -8,8 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import uz.androdev.memorization.data.db.dao.FlashCardDao
@@ -17,7 +16,6 @@ import uz.androdev.memorization.data.db.dao.FolderDao
 import uz.androdev.memorization.factory.FlashCardEntityFactory
 import uz.androdev.memorization.factory.FolderEntityFactory
 import uz.androdev.memorization.model.entity.FlashCardEntity
-import kotlin.math.exp
 
 /**
  * Created by: androdev
@@ -136,5 +134,34 @@ class TestFlashCardDao {
     @Test
     fun getFlashCardById_whenNonExistentFlashCardRequested_shouldReturnNull() = runTest {
         assertEquals(null, flashCardDao.getFlashCardById(-10L))
+    }
+
+    @Test
+    fun deleteFlashCard_shouldDeleteFlashCard() = runTest {
+        val folder = with(FolderEntityFactory.createFolderEntityWithoutId()) {
+            this.copy(
+                id = folderDao.insertFolder(this)
+            )
+        }
+        val flashCardEntities = List(7) {
+            with(FlashCardEntityFactory.createNewFlashCard(folderId = folder.id)) {
+                this.copy(
+                    id = flashCardDao.insertFlashCard(this)
+                )
+            }
+        }
+        flashCardEntities.forEach {
+            assertNotNull(flashCardDao.getFlashCardById(it.id))
+        }
+
+        val flashCardEntityToRemove = flashCardEntities.random()
+        flashCardDao.removeFlashCard(flashCardEntityToRemove.id)
+
+        assertNull(flashCardDao.getFlashCardById(flashCardEntityToRemove.id))
+        flashCardEntities.forEach {
+            if (it.id != flashCardEntityToRemove.id) {
+                assertNotNull(flashCardDao.getFlashCardById(it.id))
+            }
+        }
     }
 }

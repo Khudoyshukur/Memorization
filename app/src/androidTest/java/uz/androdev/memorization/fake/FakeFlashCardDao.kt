@@ -1,9 +1,6 @@
 package uz.androdev.memorization.fake
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import uz.androdev.memorization.data.db.dao.FlashCardDao
 import uz.androdev.memorization.model.entity.FlashCardEntity
 import javax.inject.Inject
@@ -54,6 +51,12 @@ class FakeFlashCardDao @Inject constructor() : FlashCardDao {
     override suspend fun getFlashCardById(id: Long): FlashCardEntity? {
         return flashCards.value.find {
             it.id == id
+        }
+    }
+
+    override suspend fun removeFlashCard(id: Long) {
+        flashCards.update { list ->
+            list.filter { it.id != id }
         }
     }
 }
