@@ -16,4 +16,10 @@
     <string name="folder_icon">Folder Icon</string>
     <string name="no_flash_cards_message">You haven\'t created any flash cards yet</string>
     <string name="flash_cards_list">Flash Cards list</string>
+    <string name="create_flash_card_dialog">CreateFlashCardDialog</string>
+    <string name="question_input_field">QuestionInputField</string>
+    <string name="create_flash_card">Create Flash Card</string>
+    <string name="answer_input_field">AnswerInputField</string>
+    <string name="answer">Answer</string>
+    <string name="question">Question</string>
 </resources>
