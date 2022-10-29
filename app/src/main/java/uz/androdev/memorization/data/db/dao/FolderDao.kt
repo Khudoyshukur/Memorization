@@ -23,5 +23,8 @@ interface FolderDao {
     fun getFolders(): Flow<List<FolderEntity>>
 
     @Query("select * from folders where title == :title")
-    fun getFolderByTitle(title: String): FolderEntity?
+    suspend fun getFolderByTitle(title: String): FolderEntity?
+
+    @Query("select * from folders where id=:id")
+    suspend fun getFolderById(id: Long): FolderEntity?
 }

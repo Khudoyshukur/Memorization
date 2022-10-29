@@ -22,6 +22,6 @@ import org.threeten.bp.LocalDateTime
 data class FolderEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     @ColumnInfo(name = "title") val title: String,
-    @ColumnInfo(name = "created_at") val createdAt: LocalDateTime,
-    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime
+    @ColumnInfo(name = "created_at") val createdAt: LocalDateTime = LocalDateTime.now(),
+    @ColumnInfo(name = "updated_at") val updatedAt: LocalDateTime = LocalDateTime.now()
 )

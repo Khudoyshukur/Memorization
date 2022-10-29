@@ -45,4 +45,15 @@ class RoomFolderDataSourceImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun updateFolder(folder: Folder) {
+        val entityInDb = folderDao.getFolderById(folder.id)
+            ?: throw IllegalArgumentException("Folder not found!")
+        folderDao.insertFolder(
+            entityInDb.copy(
+                title = folder.title,
+                updatedAt = LocalDateTime.now()
+            )
+        )
+    }
 }

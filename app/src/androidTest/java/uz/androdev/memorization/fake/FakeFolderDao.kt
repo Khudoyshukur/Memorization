@@ -19,18 +19,40 @@ open class FakeFolderDao @Inject constructor() : FolderDao {
     private val folders = MutableStateFlow<List<FolderEntity>>(emptyList())
 
     override suspend fun insertFolder(folderEntity: FolderEntity): Long {
-        folders.update {
-            it + listOf(folderEntity.copy(id = currentId))
+        val folder = folders.value.find {
+            it.id == folderEntity.id
         }
 
-        return currentId++
+        return if (folder == null) {
+            folders.update {
+                it + listOf(folderEntity.copy(id = currentId))
+            }
+
+            currentId++
+        } else {
+            folders.update {
+                it.map {
+                    if (it.id == folderEntity.id) {
+                        folderEntity
+                    } else {
+                        it
+                    }
+                }
+            }
+
+            folderEntity.id
+        }
     }
 
     override fun getFolders(): Flow<List<FolderEntity>> {
         return folders
     }
 
-    override fun getFolderByTitle(title: String): FolderEntity? {
+    override suspend fun getFolderByTitle(title: String): FolderEntity? {
         return folders.value.find { it.title == title }
+    }
+
+    override suspend fun getFolderById(id: Long): FolderEntity? {
+        return folders.value.find { it.id == id }
     }
 }

@@ -3,13 +3,14 @@ package uz.androdev.memorization.data.datasource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import uz.androdev.memorization.data.datasource.impl.RoomFolderDataSourceImpl
 import uz.androdev.memorization.data.fake.FakeFolderDao
 import uz.androdev.memorization.factory.FolderFactory
+import java.util.UUID
 
 /**
  * Created by: androdev
@@ -69,5 +70,56 @@ class TestRoomFolderDataSourceImpl {
         assertTrue(allFolders.any { it.title == newFolder.title })
         assertTrue(allFolders.any { it.title == "${newFolder.title}(1)" })
         assertTrue(allFolders.any { it.title == "${newFolder.title}(2)" })
+    }
+
+    @Test
+    fun updateFolder_shouldUpdateFolder_andDelegateToDao() = runTest {
+        val input = FolderFactory.createUniqueFolderInput()
+        localFolderDataSourceImpl.createFolder(input)
+
+        val insertedFolder = localFolderDataSourceImpl.getFolders().first().first()
+
+        // make sure input is written to a database
+        assertTrue(insertedFolder.title == input.title)
+
+        val folderToUpdate = insertedFolder.copy(title = UUID.randomUUID().toString())
+        localFolderDataSourceImpl.updateFolder(folderToUpdate)
+
+        val updatedFolder = localFolderDataSourceImpl.getFolders().first().first()
+        assertTrue(updatedFolder == folderToUpdate)
+    }
+
+    @Test
+    fun updateFolder_shouldUpdateUpdateTime_andShouldNotUpdateCreateTime() = runTest {
+        val folderInput = FolderFactory.createUniqueFolderInput()
+        localFolderDataSourceImpl.createFolder(folderInput)
+
+        val currentEntityInDao = fakeFolderDao.getFolders().first().find {
+            it.title == folderInput.title
+        }!!
+
+        // record times
+        val createdAtTime = currentEntityInDao.createdAt
+        val updatedAtTime = currentEntityInDao.updatedAt
+
+        // update folder
+        val folder = localFolderDataSourceImpl.getFolders().first().find {
+            it.title == folderInput.title
+        }!!
+        localFolderDataSourceImpl.updateFolder(folder.copy(title = UUID.randomUUID().toString()))
+
+        val updatedEntityInDao = fakeFolderDao.getFolders().first().find {
+            it.id == currentEntityInDao.id
+        }!!
+
+        assertEquals(createdAtTime, updatedEntityInDao.createdAt)
+        assertNotEquals(updatedAtTime, updatedEntityInDao.updatedAt)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun updateFolder_whenNotExistentFolderIsUpdated_shouldThrowException() = runTest {
+        val folder = FolderFactory.createFolder()
+
+        localFolderDataSourceImpl.updateFolder(folder)
     }
 }

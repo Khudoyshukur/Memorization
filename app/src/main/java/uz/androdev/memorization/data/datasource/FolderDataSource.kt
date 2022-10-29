@@ -13,5 +13,6 @@ import uz.androdev.memorization.model.model.Folder
 
 interface FolderDataSource {
     suspend fun createFolder(folderInput: FolderInput)
+    suspend fun updateFolder(folder: Folder)
     fun getFolders(): Flow<List<Folder>>
 }
