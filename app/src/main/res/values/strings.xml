@@ -27,4 +27,5 @@
     <string name="flash_card_details_sheet">FlashCardDetailsSheet</string>
     <string name="remove">Remove</string>
     <string name="edit">Edit</string>
+    <string name="edit_flash_card">Edit Flash Card</string>
 </resources>

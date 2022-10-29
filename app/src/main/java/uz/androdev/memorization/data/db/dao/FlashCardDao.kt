@@ -3,6 +3,7 @@ package uz.androdev.memorization.data.db.dao
 import android.database.sqlite.SQLiteConstraintException
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import uz.androdev.memorization.model.entity.FlashCardEntity
@@ -17,7 +18,7 @@ import uz.androdev.memorization.model.entity.FlashCardEntity
 @Dao
 interface FlashCardDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     @Throws(SQLiteConstraintException::class)
     suspend fun insertFlashCard(flashCardEntity: FlashCardEntity): Long
 

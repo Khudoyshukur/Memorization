@@ -23,7 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import uz.androdev.memorization.R
 import uz.androdev.memorization.model.model.FlashCard
-import uz.androdev.memorization.ui.component.CreateFlashCardDialog
+import uz.androdev.memorization.ui.component.FlashCardDialog
 import uz.androdev.memorization.ui.component.FlashCardsListComponent
 import uz.androdev.memorization.ui.theme.MemorizationTheme
 import uz.androdev.memorization.ui.viewmodel.FlashCardScreenAction
@@ -57,6 +57,10 @@ fun FlashCardScreenRoute(
         onRemoveFlashCard = {
             val action = FlashCardScreenAction.RemoveFlashCard(it)
             viewModel.processAction(action)
+        },
+        onUpdateFlashCard = {
+            val action = FlashCardScreenAction.UpdateFlashCard(it)
+            viewModel.processAction(action)
         }
     )
 
@@ -88,6 +92,9 @@ fun FlashCardsScreen(
     val selectedFlashCard = remember { mutableStateOf<FlashCard?>(null) }
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
+    var flashCardToEdit by remember {
+        mutableStateOf<FlashCard?>(null)
+    }
 
     ModalBottomSheetLayout(
         sheetContent = {
@@ -104,7 +111,13 @@ fun FlashCardsScreen(
                                 sheetState.hide()
                             }
                         },
-                        onUpdateFlashCard = onUpdateFlashCard,
+                        onUpdateFlashCard = {
+                            coroutineScope.launch {
+                                sheetState.hide()
+                                selectedFlashCard.value = null
+                                flashCardToEdit = it
+                            }
+                        },
                         onRemoveFlashCard = {
                             coroutineScope.launch {
                                 sheetState.hide()
@@ -125,6 +138,31 @@ fun FlashCardsScreen(
                 selectedFlashCard.value = clickedFlashCard
                 coroutineScope.launch { sheetState.show() }
             },
+        )
+    }
+
+    if (flashCardToEdit != null) {
+        FlashCardDialog(
+            title = stringResource(id = R.string.edit_flash_card),
+            negativeButtonText = stringResource(id = R.string.cancel),
+            positiveButtonText = stringResource(id = R.string.edit),
+            initialQuestionText = flashCardToEdit?.question ?: "",
+            initialAnswerText = flashCardToEdit?.answer ?: "",
+            onDismissRequested = {
+                flashCardToEdit = null
+            },
+            onSubmit = { question, answer ->
+                flashCardToEdit?.let {
+                    flashCardToEdit = null
+
+                    onUpdateFlashCard(
+                        it.copy(
+                            question = question,
+                            answer = answer
+                        )
+                    )
+                }
+            }
         )
     }
 }
@@ -163,9 +201,12 @@ fun FlashCardsMainContent(
     )
 
     if (showCreateFlashCardDialog) {
-        CreateFlashCardDialog(
+        FlashCardDialog(
+            title = stringResource(id = R.string.create_flash_card),
+            negativeButtonText = stringResource(id = R.string.cancel),
+            positiveButtonText = stringResource(id = R.string.create),
             onDismissRequested = { showCreateFlashCardDialog = false },
-            onCreateFlashCard = { question, answer ->
+            onSubmit = { question, answer ->
                 showCreateFlashCardDialog = false
                 onCreateFlashCard(question, answer)
             }

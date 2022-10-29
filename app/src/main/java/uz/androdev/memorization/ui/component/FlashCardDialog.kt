@@ -29,19 +29,24 @@ import uz.androdev.memorization.R
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun CreateFlashCardDialog(
+fun FlashCardDialog(
+    title: String,
+    negativeButtonText: String,
+    positiveButtonText: String,
+    initialQuestionText: String = "",
+    initialAnswerText: String = "",
     onDismissRequested: () -> Unit,
-    onCreateFlashCard: (question: String, answer: String) -> Unit
+    onSubmit: (question: String, answer: String) -> Unit,
 ) {
     var questionInput by remember {
-        mutableStateOf("")
+        mutableStateOf(initialQuestionText)
     }
     var showQuestionInputIsBlankMessageError by remember {
         mutableStateOf(false)
     }
 
     var answerInput by remember {
-        mutableStateOf("")
+        mutableStateOf(initialAnswerText)
     }
     var showAnswerInputIsBlankMessageError by remember {
         mutableStateOf(false)
@@ -64,7 +69,7 @@ fun CreateFlashCardDialog(
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.create_flash_card),
+                    text = title,
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
@@ -136,8 +141,8 @@ fun CreateFlashCardDialog(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 DialogTwoButtons(
-                    negativeButtonText = stringResource(id = R.string.cancel),
-                    positiveButtonText = stringResource(id = R.string.create),
+                    negativeButtonText = negativeButtonText,
+                    positiveButtonText = positiveButtonText,
                     onNegativeButtonClicked = { onDismissRequested() },
                     onPositiveButtonClicked = {
                         if (questionInput.isBlank()) {
@@ -145,7 +150,7 @@ fun CreateFlashCardDialog(
                         } else if (answerInput.isBlank()) {
                             showAnswerInputIsBlankMessageError = true
                         } else {
-                            onCreateFlashCard(questionInput, answerInput)
+                            onSubmit(questionInput, answerInput)
                         }
                     }
                 )

@@ -75,7 +75,7 @@ class TestFlashCardScreenRoute {
     private val progressBarMatcher by lazy { hasTestTag(resources.getString(R.string.progress_bar)) }
     private val noFlashCardsTextMatcher by lazy { hasText(resources.getString(R.string.no_flash_cards_message)) }
     private val flashCardsLazyColumnMatcher by lazy { hasTestTag(resources.getString(R.string.flash_cards_list)) }
-    private val createFlashCardDialogMatcher by lazy { hasTestTag(resources.getString(R.string.create_flash_card_dialog)) }
+    private val flashCardDialogMatcher by lazy { hasTestTag(resources.getString(R.string.create_flash_card_dialog)) }
     private val createFlashCardDialogQuestionFieldMatcher by lazy { hasTestTag(resources.getString(R.string.question_input_field)) }
     private val createFlashCardDialogAnswerFieldMatcher by lazy { hasTestTag(resources.getString(R.string.answer_input_field)) }
     private val createFlashCardDialogCreateButtonMatcher by lazy { hasText(resources.getString(R.string.create)) }
@@ -83,6 +83,7 @@ class TestFlashCardScreenRoute {
     private val flashCardDetailsSheetMatcher by lazy { hasTestTag(resources.getString(R.string.flash_card_details_sheet)) }
     private val editFlashCardButtonMatcher by lazy { hasText(resources.getString(R.string.edit)) }
     private val removeFlashCardButtonMatcher by lazy { hasText(resources.getString(R.string.remove)) }
+    private val editFlashCardDialogPositiveButtonMatcher by lazy { hasText(resources.getString(R.string.edit)) }
 
     @Before
     fun setUp() {
@@ -119,7 +120,7 @@ class TestFlashCardScreenRoute {
         }
 
         composeRule.onNode(addButtonMatcher).performClick()
-        composeRule.onNode(createFlashCardDialogMatcher).assertIsDisplayed()
+        composeRule.onNode(flashCardDialogMatcher).assertIsDisplayed()
     }
 
     @Test
@@ -207,6 +208,64 @@ class TestFlashCardScreenRoute {
 
         composeRule.waitUntilDoesNotExist(flashCardDetailsSheetMatcher, 2000)
         composeRule.waitUntilDoesNotExist(hasText(randomFlashCard.question), 2000)
+
+        // check whether other flash cards exist
+        flashCards.filter { it != randomFlashCard }.forEach {
+            composeRule.onNode(hasText(it.question)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    fun whenEditClickedInBottomSheet_shouldDismissBottomSheet_shouldEditFlashCard() = runTest {
+        composeRule.setContent {
+            FlashCardScreenRoute(viewModel = viewModel)
+        }
+
+        val entities = List(3) {
+            FlashCardEntity(
+                folderId = folderId,
+                question = UUID.randomUUID().toString(),
+                answer = UUID.randomUUID().toString()
+            ).also {
+                flashCardDao.insertFlashCard(it)
+            }
+        }
+
+        composeRule.waitUntilExists(
+            hasText(entities.first().question)
+        )
+
+        val flashCards = viewModel.uiState.value.flashCards!!
+        val randomFlashCard = flashCards.random()
+        // click the flash card item
+        composeRule.onNode(hasText(randomFlashCard.question)).performClick()
+
+        // click remove flash card button
+        composeRule.onNode(editFlashCardButtonMatcher).performClick()
+
+        composeRule.waitUntilDoesNotExist(flashCardDetailsSheetMatcher)
+
+        composeRule.onNode(flashCardDialogMatcher).assertIsDisplayed()
+
+        // check input fields
+        composeRule.onNode(createFlashCardDialogQuestionFieldMatcher)
+            .assert(hasText(randomFlashCard.question))
+        composeRule.onNode(createFlashCardDialogAnswerFieldMatcher)
+            .assert(hasText(randomFlashCard.answer))
+
+        val questionText = "Who are you?"
+        val answerText = "I am an Android Engineer"
+        composeRule.onNode(createFlashCardDialogQuestionFieldMatcher).performTextClearance()
+        composeRule.onNode(createFlashCardDialogQuestionFieldMatcher).performTextInput(questionText)
+
+        composeRule.onNode(createFlashCardDialogAnswerFieldMatcher).performTextClearance()
+        composeRule.onNode(createFlashCardDialogAnswerFieldMatcher).performTextInput(answerText)
+
+        composeRule.onNode(editFlashCardDialogPositiveButtonMatcher).performClick()
+
+        // check whether randomFlashCard has been edited
+        composeRule.waitUntilDoesNotExist(hasText(randomFlashCard.question))
+        composeRule.waitUntilExists(hasText(questionText))
 
         // check whether other flash cards exist
         flashCards.filter { it != randomFlashCard }.forEach {

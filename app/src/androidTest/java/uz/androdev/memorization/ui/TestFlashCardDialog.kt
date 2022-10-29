@@ -9,7 +9,8 @@ import org.mockito.Mockito
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import uz.androdev.memorization.R
-import uz.androdev.memorization.ui.component.CreateFlashCardDialog
+import uz.androdev.memorization.ui.component.FlashCardDialog
+import java.util.UUID
 
 /**
  * Created by: androdev
@@ -18,11 +19,14 @@ import uz.androdev.memorization.ui.component.CreateFlashCardDialog
  * Email: Khudoyshukur.Juraev.001@mail.ru
  */
 
-class TestCreateFlashCardDialog {
+class TestFlashCardDialog {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     private val resources by lazy { composeRule.activity.resources }
+    private val titleText = "Title"
+    private val positiveButtonText = "Positive"
+    private val negativeButtonText = "Negative"
     private val createFlashCardDialogMatcher by lazy { hasTestTag(resources.getString(R.string.create_flash_card_dialog)) }
     private val createFlashCardDialogQuestionInputFieldMatcher by lazy {
         hasTestTag(resources.getString(R.string.question_input_field))
@@ -30,15 +34,18 @@ class TestCreateFlashCardDialog {
     private val createFlashCardDialogAnswerInputFieldMatcher by lazy {
         hasTestTag(resources.getString(R.string.answer_input_field))
     }
-    private val createFlashCardDialogCreateButtonMatcher by lazy { hasText(resources.getString(R.string.create)) }
-    private val createFlashCardDialogCancelButtonMatcher by lazy { hasText(resources.getString(R.string.cancel)) }
-    private val createFlashCardDialogTitleMatcher by lazy { hasText(resources.getString(R.string.create_flash_card)) }
+    private val createFlashCardDialogCreateButtonMatcher by lazy { hasText(positiveButtonText) }
+    private val createFlashCardDialogCancelButtonMatcher by lazy { hasText(negativeButtonText) }
+    private val createFlashCardDialogTitleMatcher by lazy { hasText(titleText) }
 
     @Test
     fun testInitialState() {
         composeRule.setContent {
-            CreateFlashCardDialog(
-                onDismissRequested = { }, onCreateFlashCard = { _, _ -> }
+            FlashCardDialog(
+                title = titleText,
+                positiveButtonText = positiveButtonText,
+                negativeButtonText = negativeButtonText,
+                onDismissRequested = { }, onSubmit = { _, _ -> }
             )
         }
 
@@ -54,8 +61,11 @@ class TestCreateFlashCardDialog {
     fun whenCancelClicked_shouldRequestDismissal() {
         val onDismissRequested: () -> Unit = mock()
         composeRule.setContent {
-            CreateFlashCardDialog(
-                onDismissRequested = onDismissRequested, onCreateFlashCard = { _, _ -> }
+            FlashCardDialog(
+                title = titleText,
+                positiveButtonText = positiveButtonText,
+                negativeButtonText = negativeButtonText,
+                onDismissRequested = onDismissRequested, onSubmit = { _, _ -> }
             )
         }
 
@@ -69,8 +79,11 @@ class TestCreateFlashCardDialog {
         val onDismissRequested: () -> Unit = mock()
         val createFlashCard: (String, String) -> Unit = mock()
         composeRule.setContent {
-            CreateFlashCardDialog(
-                onDismissRequested = onDismissRequested, onCreateFlashCard = createFlashCard
+            FlashCardDialog(
+                title = titleText,
+                positiveButtonText = positiveButtonText,
+                negativeButtonText = negativeButtonText,
+                onDismissRequested = onDismissRequested, onSubmit = createFlashCard
             )
         }
 
@@ -89,8 +102,11 @@ class TestCreateFlashCardDialog {
         val onDismissRequested: () -> Unit = mock()
         val createFlashCard: (String, String) -> Unit = mock()
         composeRule.setContent {
-            CreateFlashCardDialog(
-                onDismissRequested = onDismissRequested, onCreateFlashCard = createFlashCard
+            FlashCardDialog(
+                title = titleText,
+                positiveButtonText = positiveButtonText,
+                negativeButtonText = negativeButtonText,
+                onDismissRequested = onDismissRequested, onSubmit = createFlashCard
             )
         }
 
@@ -109,8 +125,11 @@ class TestCreateFlashCardDialog {
         val onDismissRequested: () -> Unit = mock()
         val createFlashCard: (String, String) -> Unit = mock()
         composeRule.setContent {
-            CreateFlashCardDialog(
-                onDismissRequested = onDismissRequested, onCreateFlashCard = createFlashCard
+            FlashCardDialog(
+                title = titleText,
+                positiveButtonText = positiveButtonText,
+                negativeButtonText = negativeButtonText,
+                onDismissRequested = onDismissRequested, onSubmit = createFlashCard
             )
         }
 
@@ -124,5 +143,33 @@ class TestCreateFlashCardDialog {
             .performClick()
 
         Mockito.verify(createFlashCard).invoke(eq(questionText), eq(answerText))
+    }
+
+    @Test
+    fun whenInitialTextsProvided_shouldDisplayThem() {
+        val initialQuestion = UUID.randomUUID().toString()
+        val initialAnswer = UUID.randomUUID().toString()
+        composeRule.setContent {
+            FlashCardDialog(
+                title = titleText,
+                positiveButtonText = positiveButtonText,
+                negativeButtonText = negativeButtonText,
+                initialQuestionText = initialQuestion,
+                initialAnswerText = initialAnswer,
+                onDismissRequested = { }, onSubmit = { _, _ -> }
+            )
+        }
+
+        composeRule.onNode(createFlashCardDialogMatcher).assertIsDisplayed()
+        composeRule.onNode(createFlashCardDialogTitleMatcher).assertIsDisplayed()
+        composeRule.onNode(createFlashCardDialogQuestionInputFieldMatcher).assertIsDisplayed()
+        composeRule.onNode(createFlashCardDialogAnswerInputFieldMatcher).assertIsDisplayed()
+        composeRule.onNode(createFlashCardDialogCancelButtonMatcher).assertIsDisplayed()
+        composeRule.onNode(createFlashCardDialogCreateButtonMatcher).assertIsDisplayed()
+
+        composeRule.onNode(createFlashCardDialogQuestionInputFieldMatcher)
+            .assert(hasText(initialQuestion))
+        composeRule.onNode(createFlashCardDialogAnswerInputFieldMatcher)
+            .assert(hasText(initialAnswer))
     }
 }
