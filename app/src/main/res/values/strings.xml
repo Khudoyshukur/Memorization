@@ -14,4 +14,6 @@
     <string name="create_folder_dialog">Create Folder Dialog</string>
     <string name="create_folder_input_field">Create folder input field</string>
     <string name="folder_icon">Folder Icon</string>
+    <string name="no_flash_cards_message">You haven\'t created any flash cards yet</string>
+    <string name="flash_cards_list">Flash Cards list</string>
 </resources>
