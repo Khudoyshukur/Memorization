@@ -5,7 +5,9 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import uz.androdev.memorization.data.repository.FlashCardRepository
@@ -30,6 +32,14 @@ class TestUpdateFlashCardUseCase {
     fun setUp() {
         flashCardRepository = mock()
         updateFlashCardUseCaseImpl = UpdateFlashCardUseCaseImpl(flashCardRepository)
+    }
+
+    @Test
+    fun invoke_shouldDelegateToRepository() = runTest {
+        val flashCard = FlashCardFactory.createNewFlashCard()
+        updateFlashCardUseCaseImpl.invoke(flashCard)
+
+        Mockito.verify(flashCardRepository).updateFlashCard(eq(flashCard))
     }
 
     @Test
