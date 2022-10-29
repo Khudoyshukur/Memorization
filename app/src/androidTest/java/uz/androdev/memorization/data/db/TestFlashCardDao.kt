@@ -113,4 +113,23 @@ class TestFlashCardDao {
             flashCardDao.getAllFlashCards(newFolder2.id).first()
         )
     }
+
+    @Test
+    fun getFlashCardById_shouldReturnCorrectFlashCard() = runTest {
+        val folder = with(FolderEntityFactory.createFolderEntityWithoutId()) {
+            this.copy(
+                id = folderDao.insertFolder(this)
+            )
+        }
+        val flashCardEntity =
+            with(FlashCardEntityFactory.createNewFlashCard(folderId = folder.id)) {
+                this.copy(
+                    id = flashCardDao.insertFlashCard(this)
+                )
+            }
+
+        val response = flashCardDao.getFlashCardById(flashCardEntity.id)
+
+        assertEquals(response, flashCardEntity)
+    }
 }

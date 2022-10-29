@@ -51,4 +51,9 @@ class FakeFlashCardDao @Inject constructor() : FlashCardDao {
         }
     }
 
+    override suspend fun getFlashCardById(id: Long): FlashCardEntity? {
+        return flashCards.value.find {
+            it.id == id
+        }
+    }
 }

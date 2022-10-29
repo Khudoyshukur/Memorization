@@ -23,4 +23,7 @@ interface FlashCardDao {
 
     @Query("select * from flash_cards where folder_id == :folderId")
     fun getAllFlashCards(folderId: Long): Flow<List<FlashCardEntity>>
+
+    @Query("select * from flash_cards where id=:id")
+    suspend fun getFlashCardById(id: Long): FlashCardEntity?
 }
