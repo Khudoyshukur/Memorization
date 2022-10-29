@@ -22,4 +22,5 @@
     <string name="answer_input_field">AnswerInputField</string>
     <string name="answer">Answer</string>
     <string name="question">Question</string>
+    <string name="add_flash_card">Add Flash Card</string>
 </resources>
