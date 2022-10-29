@@ -18,11 +18,11 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.*
+import uz.androdev.memorization.domain.response.UnitFailure
 import uz.androdev.memorization.domain.response.UseCaseResponse
-import uz.androdev.memorization.domain.usecase.CreateFlashCardUseCase
-import uz.androdev.memorization.domain.usecase.CreateFlashCardUseCaseFailure
-import uz.androdev.memorization.domain.usecase.GetFlashCardsUseCase
+import uz.androdev.memorization.domain.usecase.*
 import uz.androdev.memorization.factory.FlashCardFactory
+import uz.androdev.memorization.model.model.FlashCard
 import uz.androdev.memorization.ui.navigation.Arguments
 
 /**
@@ -36,6 +36,8 @@ import uz.androdev.memorization.ui.navigation.Arguments
 class TestFlashCardsScreenViewModel {
     private lateinit var getFlashCardsUseCase: GetFlashCardsUseCase
     private lateinit var createFlashCardUseCase: CreateFlashCardUseCase
+    private lateinit var updateFlashCardUseCase: UpdateFlashCardUseCase
+    private lateinit var removeFlashCardUseCase: RemoveFlashCardUseCase
     private lateinit var viewModel: FlashCardsScreenViewModel
     private lateinit var savedStateHandle: SavedStateHandle
     private val folderId = 10L
@@ -48,6 +50,8 @@ class TestFlashCardsScreenViewModel {
 
         getFlashCardsUseCase = mock()
         createFlashCardUseCase = mock()
+        updateFlashCardUseCase = mock()
+        removeFlashCardUseCase = mock()
         savedStateHandle = mock()
 
         whenever(getFlashCardsUseCase.invoke(any()))
@@ -59,6 +63,8 @@ class TestFlashCardsScreenViewModel {
         viewModel = FlashCardsScreenViewModel(
             getFlashCardsUseCase,
             createFlashCardUseCase,
+            removeFlashCardUseCase,
+            updateFlashCardUseCase,
             savedStateHandle
         )
     }
@@ -81,18 +87,16 @@ class TestFlashCardsScreenViewModel {
         viewModel = FlashCardsScreenViewModel(
             getFlashCardsUseCase,
             createFlashCardUseCase,
+            removeFlashCardUseCase,
+            updateFlashCardUseCase,
             savedStateHandle
         )
 
         val state = viewModel.uiState.value
 
-        assertEquals(
-            state, FlashCardScreenUiState(
-                flashCards = null,
-                failedToCreateFlashCard = false,
-                creatingFlashCard = false
-            )
-        )
+        assertEquals(state.flashCards, null)
+        assertEquals(state.flashCardScreenError, null)
+        assertEquals(state.progressState.creatingFlashCard, false)
     }
 
     @Test
@@ -107,6 +111,8 @@ class TestFlashCardsScreenViewModel {
         viewModel = FlashCardsScreenViewModel(
             getFlashCardsUseCase,
             createFlashCardUseCase,
+            removeFlashCardUseCase,
+            updateFlashCardUseCase,
             savedStateHandle
         )
 
@@ -135,34 +141,103 @@ class TestFlashCardsScreenViewModel {
 
     @Test
     fun createFlashCard_shouldTriggerLoadingStateInitially() = runTest {
-        val action = FlashCardScreenAction.CreateFlashCard(
-            question = faker.lorem().characters(),
-            answer = faker.lorem().characters()
-        )
-        whenever(createFlashCardUseCase(any()))
-            .then {
-                assertTrue(viewModel.uiState.value.creatingFlashCard)
-                UseCaseResponse.Success(Unit)
-            }
-        viewModel.processAction(action)
+        invokeCollectingUiState {
+            val action = FlashCardScreenAction.CreateFlashCard(
+                question = faker.lorem().characters(),
+                answer = faker.lorem().characters()
+            )
+            whenever(createFlashCardUseCase(any()))
+                .then {
+                    assertTrue(viewModel.uiState.value.progressState.creatingFlashCard)
+                    UseCaseResponse.Success(Unit)
+                }
+            viewModel.processAction(action)
 
-        assertFalse(viewModel.uiState.value.creatingFlashCard)
+            assertFalse(viewModel.uiState.value.progressState.creatingFlashCard)
+        }
     }
 
     @Test
     fun createFlashCard_whenUseCaseReturnsFailure_shouldTriggerErrorState() = runTest {
         invokeCollectingUiState {
             simulateCreateFolderErrorState()
-            assertTrue(viewModel.uiState.value.failedToCreateFlashCard)
+            assertEquals(
+                viewModel.uiState.value.flashCardScreenError,
+                FlashCardScreenError.FailedToCreateFlashCard
+            )
         }
     }
 
     @Test
-    fun errorPresentedAction_shouldSetErrorStateToFalse() = runTest {
+    fun errorPresentedAction_shouldSetErrorStateToNull() = runTest {
         invokeCollectingUiState {
             simulateCreateFolderErrorState()
-            viewModel.processAction(FlashCardScreenAction.CreateFlashCardFailurePresented)
-            assertFalse(viewModel.uiState.value.failedToCreateFlashCard)
+            viewModel.processAction(FlashCardScreenAction.FlashCardErrorPresented)
+            assertNull(viewModel.uiState.value.flashCardScreenError)
+        }
+    }
+
+    @Test
+    fun removeFlashCard_shouldTriggerLoadingStateInitially() = runTest {
+        invokeCollectingUiState {
+            val action = FlashCardScreenAction.RemoveFlashCard(
+                flashCard = FlashCard(
+                    id = 10L,
+                    question = faker.lorem().characters(),
+                    answer = faker.lorem().characters()
+                )
+            )
+            whenever(removeFlashCardUseCase(any()))
+                .then {
+                    assertTrue(viewModel.uiState.value.progressState.removingFlashCard)
+                    UseCaseResponse.Success(Unit)
+                }
+            viewModel.processAction(action)
+
+            assertFalse(viewModel.uiState.value.progressState.removingFlashCard)
+        }
+    }
+
+    @Test
+    fun updateFlashCard_shouldTriggerLoadingStateInitially() = runTest {
+        invokeCollectingUiState {
+            val action = FlashCardScreenAction.UpdateFlashCard(
+                flashCard = FlashCard(
+                    id = 10L,
+                    question = faker.lorem().characters(),
+                    answer = faker.lorem().characters()
+                )
+            )
+            whenever(updateFlashCardUseCase(any()))
+                .then {
+                    assertTrue(viewModel.uiState.value.progressState.updatingFlashCard)
+                    UseCaseResponse.Success(Unit)
+                }
+            viewModel.processAction(action)
+
+            assertFalse(viewModel.uiState.value.progressState.updatingFlashCard)
+        }
+    }
+
+    @Test
+    fun removeFlashCard_whenUseCaseReturnsFailure_shouldTriggerErrorState() = runTest {
+        invokeCollectingUiState {
+            simulateRemoveFolderErrorState()
+            assertEquals(
+                viewModel.uiState.value.flashCardScreenError,
+                FlashCardScreenError.FailedToRemoveFlashCard
+            )
+        }
+    }
+
+    @Test
+    fun updateFlashCard_whenUseCaseReturnsFailure_shouldTriggerErrorState() = runTest {
+        invokeCollectingUiState {
+            simulateUpdateFolderErrorState()
+            assertEquals(
+                viewModel.uiState.value.flashCardScreenError,
+                FlashCardScreenError.FailedToUpdateFlashCard
+            )
         }
     }
 
@@ -175,6 +250,38 @@ class TestFlashCardsScreenViewModel {
             .thenReturn(
                 UseCaseResponse.Failure(
                     CreateFlashCardUseCaseFailure.CouldNotCreateFlashCard
+                )
+            )
+        viewModel.processAction(action)
+    }
+
+    private suspend fun simulateRemoveFolderErrorState() {
+        val action = FlashCardScreenAction.RemoveFlashCard(
+            FlashCard(
+                id = 10L,
+                question = faker.lorem().characters(),
+                answer = faker.lorem().characters()
+            )
+        )
+        whenever(removeFlashCardUseCase(any()))
+            .thenReturn(
+                UseCaseResponse.Failure(UnitFailure)
+            )
+        viewModel.processAction(action)
+    }
+
+    private suspend fun simulateUpdateFolderErrorState() {
+        val action = FlashCardScreenAction.UpdateFlashCard(
+            FlashCard(
+                id = 10L,
+                question = faker.lorem().characters(),
+                answer = faker.lorem().characters()
+            )
+        )
+        whenever(updateFlashCardUseCase(any()))
+            .thenReturn(
+                UseCaseResponse.Failure(
+                    UpdateFlashCardUseCaseFailure.UnknownErrorOccurred
                 )
             )
         viewModel.processAction(action)

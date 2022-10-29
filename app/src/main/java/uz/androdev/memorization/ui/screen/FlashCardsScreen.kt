@@ -27,6 +27,7 @@ import uz.androdev.memorization.ui.component.CreateFlashCardDialog
 import uz.androdev.memorization.ui.component.FlashCardsListComponent
 import uz.androdev.memorization.ui.theme.MemorizationTheme
 import uz.androdev.memorization.ui.viewmodel.FlashCardScreenAction
+import uz.androdev.memorization.ui.viewmodel.FlashCardScreenError
 import uz.androdev.memorization.ui.viewmodel.FlashCardsScreenViewModel
 import java.util.*
 
@@ -52,16 +53,25 @@ fun FlashCardScreenRoute(
                 answer = answer
             )
             viewModel.processAction(action)
+        },
+        onRemoveFlashCard = {
+            val action = FlashCardScreenAction.RemoveFlashCard(it)
+            viewModel.processAction(action)
         }
     )
 
-    LaunchedEffect(key1 = uiState.failedToCreateFlashCard) {
-        if (uiState.failedToCreateFlashCard) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.operation_failed),
-                Toast.LENGTH_LONG
-            ).show()
+    LaunchedEffect(key1 = uiState.flashCardScreenError) {
+        when (uiState.flashCardScreenError ?: return@LaunchedEffect) {
+            FlashCardScreenError.FailedToCreateFlashCard,
+            FlashCardScreenError.FailedToRemoveFlashCard,
+            FlashCardScreenError.FailedToUpdateFlashCard -> {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.operation_failed),
+                    Toast.LENGTH_LONG
+                ).show()
+                viewModel.processAction(FlashCardScreenAction.FlashCardErrorPresented)
+            }
         }
     }
 }
@@ -70,7 +80,9 @@ fun FlashCardScreenRoute(
 @Composable
 fun FlashCardsScreen(
     flashCards: List<FlashCard>?,
-    onCreateFlashCard: (question: String, answer: String) -> Unit
+    onCreateFlashCard: (question: String, answer: String) -> Unit,
+    onUpdateFlashCard: (FlashCard) -> Unit = {},
+    onRemoveFlashCard: (FlashCard) -> Unit = {}
 ) {
 
     val selectedFlashCard = remember { mutableStateOf<FlashCard?>(null) }
@@ -91,6 +103,14 @@ fun FlashCardsScreen(
                             coroutineScope.launch {
                                 sheetState.hide()
                             }
+                        },
+                        onUpdateFlashCard = onUpdateFlashCard,
+                        onRemoveFlashCard = {
+                            coroutineScope.launch {
+                                sheetState.hide()
+                                selectedFlashCard.value = null
+                                onRemoveFlashCard(it)
+                            }
                         }
                     )
                 }
@@ -104,7 +124,7 @@ fun FlashCardsScreen(
             onFlashCardClicked = { clickedFlashCard ->
                 selectedFlashCard.value = clickedFlashCard
                 coroutineScope.launch { sheetState.show() }
-            }
+            },
         )
     }
 }
@@ -162,7 +182,9 @@ fun EmptySheet() {
 fun FlashCardDetailsBottomSheet(
     modifier: Modifier = Modifier,
     flashCard: FlashCard,
-    onDismissRequested: () -> Unit = {}
+    onDismissRequested: () -> Unit = {},
+    onUpdateFlashCard: (FlashCard) -> Unit = {},
+    onRemoveFlashCard: (FlashCard) -> Unit = {}
 ) {
     Box(
         modifier = modifier
@@ -172,47 +194,75 @@ fun FlashCardDetailsBottomSheet(
                 color = MaterialTheme.colorScheme.primaryContainer
             ),
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = stringResource(R.string.question),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = flashCard.question,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            Row {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = stringResource(R.string.question),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(
+                        text = flashCard.question,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = stringResource(R.string.answer),
-                    style = MaterialTheme.typography.titleLarge
+                    Text(
+                        text = stringResource(R.string.answer),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Text(text = flashCard.answer)
+                }
+
+                Icon(
+                    modifier = Modifier
+                        .clickable(enabled = true) {
+                            onDismissRequested()
+                        },
+                    imageVector = Icons.Filled.Clear,
+                    contentDescription = stringResource(R.string.close_sheet),
                 )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(text = flashCard.answer)
             }
-
-            Icon(
-                modifier = Modifier
-                    .clickable(enabled = true) {
-                        onDismissRequested()
-                    },
-                imageVector = Icons.Filled.Clear,
-                contentDescription = stringResource(R.string.close_sheet),
-            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Button(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(vertical = 6.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    ),
+                    onClick = { onRemoveFlashCard(flashCard) }
+                ) {
+                    Text(text = stringResource(R.string.remove))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(vertical = 6.dp),
+                    onClick = { onUpdateFlashCard(flashCard) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.tertiary
+                    )
+                ) {
+                    Text(text = stringResource(R.string.edit))
+                }
+            }
         }
     }
 }
 
-@Preview(showSystemUi = true)
+@Preview
 @Composable
 fun FlashCardDetailsComponentPreview() {
     MemorizationTheme {

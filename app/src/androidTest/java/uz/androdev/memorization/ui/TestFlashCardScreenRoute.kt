@@ -21,11 +21,15 @@ import uz.androdev.memorization.data.db.dao.FlashCardDao
 import uz.androdev.memorization.di.FlashCardDaoModule
 import uz.androdev.memorization.domain.usecase.CreateFlashCardUseCase
 import uz.androdev.memorization.domain.usecase.GetFlashCardsUseCase
+import uz.androdev.memorization.domain.usecase.RemoveFlashCardUseCase
+import uz.androdev.memorization.domain.usecase.UpdateFlashCardUseCase
 import uz.androdev.memorization.fake.FakeFlashCardDao
+import uz.androdev.memorization.model.entity.FlashCardEntity
 import uz.androdev.memorization.ui.navigation.Arguments
 import uz.androdev.memorization.ui.screen.FlashCardScreenRoute
 import uz.androdev.memorization.ui.viewmodel.FlashCardScreenAction
 import uz.androdev.memorization.ui.viewmodel.FlashCardsScreenViewModel
+import java.util.*
 import javax.inject.Inject
 
 /**
@@ -52,6 +56,12 @@ class TestFlashCardScreenRoute {
     @Inject
     lateinit var createFlashCardUseCase: CreateFlashCardUseCase
 
+    @Inject
+    lateinit var removeFlashCardUseCase: RemoveFlashCardUseCase
+
+    @Inject
+    lateinit var updateFlashCardUseCase: UpdateFlashCardUseCase
+
     @BindValue
     @JvmField
     val flashCardDao: FlashCardDao = FakeFlashCardDao()
@@ -71,6 +81,8 @@ class TestFlashCardScreenRoute {
     private val createFlashCardDialogCreateButtonMatcher by lazy { hasText(resources.getString(R.string.create)) }
     private val addButtonMatcher by lazy { hasContentDescription(resources.getString(R.string.add_flash_card)) }
     private val flashCardDetailsSheetMatcher by lazy { hasTestTag(resources.getString(R.string.flash_card_details_sheet)) }
+    private val editFlashCardButtonMatcher by lazy { hasText(resources.getString(R.string.edit)) }
+    private val removeFlashCardButtonMatcher by lazy { hasText(resources.getString(R.string.remove)) }
 
     @Before
     fun setUp() {
@@ -83,6 +95,8 @@ class TestFlashCardScreenRoute {
         viewModel = FlashCardsScreenViewModel(
             getFlashCardsUseCase = getFlashCardsUseCase,
             createFlashCardUseCase = createFlashCardUseCase,
+            removeFlashCardUseCase = removeFlashCardUseCase,
+            updateFlashCardUseCase = updateFlashCardUseCase,
             savedStateHandle = savedStateHandle
         )
     }
@@ -159,5 +173,44 @@ class TestFlashCardScreenRoute {
         composeRule.onAllNodesWithText(question)[0].assertIsDisplayed()
         composeRule.onAllNodesWithText(question)[1].assertIsDisplayed()
         composeRule.onNode(hasText(answer)).assertIsDisplayed()
+        composeRule.onNode(removeFlashCardButtonMatcher).assertIsDisplayed()
+        composeRule.onNode(editFlashCardButtonMatcher).assertIsDisplayed()
+    }
+
+    @Test
+    fun whenRemoveClickedInBottomSheet_shouldDismissBottomSheet_shouldRemoveFlashCard() = runTest {
+        composeRule.setContent {
+            FlashCardScreenRoute(viewModel = viewModel)
+        }
+
+        val entities = List(3) {
+            FlashCardEntity(
+                folderId = folderId,
+                question = UUID.randomUUID().toString(),
+                answer = UUID.randomUUID().toString()
+            ).also {
+                flashCardDao.insertFlashCard(it)
+            }
+        }
+
+        composeRule.waitUntilExists(
+            hasText(entities.first().question)
+        )
+
+        val flashCards = viewModel.uiState.value.flashCards!!
+        val randomFlashCard = flashCards.random()
+        // click the flash card item
+        composeRule.onNode(hasText(randomFlashCard.question)).performClick()
+
+        // click remove flash card button
+        composeRule.onNode(removeFlashCardButtonMatcher).performClick()
+
+        composeRule.waitUntilDoesNotExist(flashCardDetailsSheetMatcher, 2000)
+        composeRule.waitUntilDoesNotExist(hasText(randomFlashCard.question), 2000)
+
+        // check whether other flash cards exist
+        flashCards.filter { it != randomFlashCard }.forEach {
+            composeRule.onNode(hasText(it.question)).assertIsDisplayed()
+        }
     }
 }

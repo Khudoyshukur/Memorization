@@ -25,4 +25,6 @@
     <string name="add_flash_card">Add Flash Card</string>
     <string name="close_sheet">Close BottomSheet</string>
     <string name="flash_card_details_sheet">FlashCardDetailsSheet</string>
+    <string name="remove">Remove</string>
+    <string name="edit">Edit</string>
 </resources>
