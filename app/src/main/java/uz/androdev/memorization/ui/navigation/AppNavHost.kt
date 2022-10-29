@@ -2,11 +2,15 @@ package uz.androdev.memorization.ui.navigation
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavArgument
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import uz.androdev.memorization.ui.navigation.Arguments.ARGUMENT_FOLDER_ID
+import uz.androdev.memorization.ui.screen.FlashCardScreenRoute
 import uz.androdev.memorization.ui.screen.FolderScreenRoute
 
 /**
@@ -40,8 +44,13 @@ fun AppNavHost(
             )
         }
 
-        composable(Screen.FlashCardsScreen.route) {
-            Text(text = "FlashCardsScreen")
+        composable(
+            Screen.FlashCardsScreen.route,
+            arguments = listOf(
+                navArgument(ARGUMENT_FOLDER_ID) { type = NavType.LongType }
+            )
+        ) {
+            FlashCardScreenRoute()
         }
     }
 }

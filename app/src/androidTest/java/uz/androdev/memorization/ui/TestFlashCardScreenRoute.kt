@@ -92,7 +92,7 @@ class TestFlashCardScreenRoute {
         }
 
         composeRule.onNode(noFlashCardsTextMatcher).assertIsDisplayed()
-        composeRule.onNode(addButtonMatcher).assertDoesNotExist()
+        composeRule.onNode(addButtonMatcher).assertIsDisplayed()
         composeRule.onNode(flashCardsLazyColumnMatcher).assertDoesNotExist()
     }
 
