@@ -43,4 +43,8 @@ class RoomFlashCardDataSourceImpl @Inject constructor(
             }
         }
     }
+
+    override suspend fun updateFlashCard(flashCard: FlashCard) {
+        TODO("Not yet implemented")
+    }
 }

@@ -12,13 +12,33 @@ import uz.androdev.memorization.model.entity.FlashCardEntity
  */
 
 class FakeFlashCardDao : FlashCardDao {
+    private var currentId = 1L
     private val flashCards = MutableStateFlow<List<FlashCardEntity>>(emptyList())
 
     override suspend fun insertFlashCard(flashCardEntity: FlashCardEntity): Long {
-        flashCards.update {
-            it + listOf(flashCardEntity)
+        val folder = flashCards.value.find {
+            it.id == flashCardEntity.id
         }
-        return flashCardEntity.id
+
+        return if (folder == null) {
+            flashCards.update {
+                it + listOf(flashCardEntity.copy(id = currentId))
+            }
+
+            currentId++
+        } else {
+            flashCards.update {
+                it.map {
+                    if (it.id == flashCardEntity.id) {
+                        flashCardEntity
+                    } else {
+                        it
+                    }
+                }
+            }
+
+            flashCardEntity.id
+        }
     }
 
     override fun getAllFlashCards(folderId: Long): Flow<List<FlashCardEntity>> {

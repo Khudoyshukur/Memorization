@@ -68,16 +68,16 @@ class TestRoomFlashCardDataSourceImpl {
     @Test
     fun getFlashCards_getsFlashCardsFromDao() = runTest {
         val folder = FolderFactory.createFolder()
-        val savedFlashCards = List(10) {
-            FlashCardFactory.createNewFlashCardEntity(folderId = folder.id).also {
-                flashCardDao.insertFlashCard(it)
-            }
+        val savedFlashCardIds = List(10) {
+            FlashCardFactory.createNewFlashCardEntity(folderId = folder.id)
+        }.map {
+            flashCardDao.insertFlashCard(it)
         }
 
         val flashCardsFromDataSource = dataSourceImpl.getFlashCards(folder.id).first()
 
         assertEquals(
-            savedFlashCards.map { it.id },
+            savedFlashCardIds,
             flashCardsFromDataSource.map { it.id }
         )
     }

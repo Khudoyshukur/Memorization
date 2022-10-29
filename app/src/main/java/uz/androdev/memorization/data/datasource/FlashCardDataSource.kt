@@ -17,4 +17,7 @@ interface FlashCardDataSource {
     suspend fun createFlashCard(flashCardInput: FlashCardInput)
 
     fun getFlashCards(folderId: Long): Flow<List<FlashCard>>
+
+    @Throws(IllegalArgumentException::class)
+    suspend fun updateFlashCard(flashCard: FlashCard)
 }
