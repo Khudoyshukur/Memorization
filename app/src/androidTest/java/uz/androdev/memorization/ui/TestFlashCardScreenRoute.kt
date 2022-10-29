@@ -24,6 +24,7 @@ import uz.androdev.memorization.domain.usecase.GetFlashCardsUseCase
 import uz.androdev.memorization.fake.FakeFlashCardDao
 import uz.androdev.memorization.ui.navigation.Arguments
 import uz.androdev.memorization.ui.screen.FlashCardScreenRoute
+import uz.androdev.memorization.ui.viewmodel.FlashCardScreenAction
 import uz.androdev.memorization.ui.viewmodel.FlashCardsScreenViewModel
 import javax.inject.Inject
 
@@ -69,6 +70,7 @@ class TestFlashCardScreenRoute {
     private val createFlashCardDialogAnswerFieldMatcher by lazy { hasTestTag(resources.getString(R.string.answer_input_field)) }
     private val createFlashCardDialogCreateButtonMatcher by lazy { hasText(resources.getString(R.string.create)) }
     private val addButtonMatcher by lazy { hasContentDescription(resources.getString(R.string.add_flash_card)) }
+    private val flashCardDetailsSheetMatcher by lazy { hasTestTag(resources.getString(R.string.flash_card_details_sheet)) }
 
     @Before
     fun setUp() {
@@ -130,5 +132,32 @@ class TestFlashCardScreenRoute {
                 it.question == questionText && it.answer == answerText
             } == 1
         )
+    }
+
+    @Test
+    fun whenClickedOnFlashCard_shouldShowDetailsInBottomSheet() = runTest {
+        composeRule.setContent {
+            FlashCardScreenRoute(viewModel = viewModel)
+        }
+
+        // create flash card
+        val question = "Who are you?"
+        val answer = "I am an Android Engineer"
+        val action = FlashCardScreenAction.CreateFlashCard(question = question, answer = answer)
+        viewModel.processAction(action)
+
+        // wait until item appears in the list
+        composeRule.waitUntilExists(
+            hasText(question)
+        )
+
+        // click the flash card item
+        composeRule.onNode(hasText(question)).performClick()
+
+        // check if bottom sheet dialog is displayed
+        composeRule.onNode(flashCardDetailsSheetMatcher).assertIsDisplayed()
+        composeRule.onAllNodesWithText(question)[0].assertIsDisplayed()
+        composeRule.onAllNodesWithText(question)[1].assertIsDisplayed()
+        composeRule.onNode(hasText(answer)).assertIsDisplayed()
     }
 }

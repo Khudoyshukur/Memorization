@@ -1,6 +1,7 @@
 package uz.androdev.memorization.factory
 
 import com.github.javafaker.Faker
+import uz.androdev.memorization.model.input.FlashCardInput
 import uz.androdev.memorization.model.model.FlashCard
 
 /**
@@ -29,5 +30,13 @@ object FlashCardFactory {
                 answer = faker.lorem().characters()
             )
         }
+    }
+
+    fun createFlashCardInput(folderId: Long) : FlashCardInput {
+        return FlashCardInput(
+            folderId = folderId,
+            question = "Who are you?",
+            answer = "I am an Android Engineer"
+        )
     }
 }
