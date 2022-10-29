@@ -8,10 +8,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argThat
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.*
 import uz.androdev.memorization.data.datasource.impl.RoomFlashCardDataSourceImpl
 import uz.androdev.memorization.data.db.dao.FlashCardDao
 import uz.androdev.memorization.data.fake.FakeFlashCardDao
@@ -157,5 +154,13 @@ class TestRoomFlashCardDataSourceImpl {
             id = -10L
         )
         dataSourceImpl.updateFlashCard(flashCard)
+    }
+
+    @Test
+    fun removeFlashCard_shouldDelegateToDao() = runTest {
+        val flashCard = FlashCardFactory.createNewFlashCard()
+        dataSourceImpl.removeFlashCard(flashCard)
+
+        Mockito.verify(flashCardDao).removeFlashCard(eq(flashCard.id))
     }
 }

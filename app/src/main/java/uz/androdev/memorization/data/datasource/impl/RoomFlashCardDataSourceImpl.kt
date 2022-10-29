@@ -57,4 +57,8 @@ class RoomFlashCardDataSourceImpl @Inject constructor(
             )
         )
     }
+
+    override suspend fun removeFlashCard(flashCard: FlashCard) {
+        flashCardDao.removeFlashCard(flashCard.id)
+    }
 }
