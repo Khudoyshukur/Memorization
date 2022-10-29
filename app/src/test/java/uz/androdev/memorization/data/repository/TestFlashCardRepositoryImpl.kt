@@ -56,4 +56,12 @@ class TestFlashCardRepositoryImpl {
         Mockito.verify(flashCardDataSource).getFlashCards(folderId)
         assertEquals(receivedFlashCards, flashCards)
     }
+
+    @Test
+    fun updateFlashCard_shouldDelegateToDataSource() = runTest {
+        val flashCard = FlashCardFactory.createNewFlashCard()
+        flashCardRepositoryImpl.updateFlashCard(flashCard)
+
+        Mockito.verify(flashCardDataSource).updateFlashCard(eq(flashCard))
+    }
 }

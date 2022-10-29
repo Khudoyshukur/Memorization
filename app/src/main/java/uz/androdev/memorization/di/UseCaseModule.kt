@@ -5,14 +5,8 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
-import uz.androdev.memorization.domain.usecase.CreateFlashCardUseCase
-import uz.androdev.memorization.domain.usecase.CreateFolderUseCase
-import uz.androdev.memorization.domain.usecase.GetFlashCardsUseCase
-import uz.androdev.memorization.domain.usecase.GetFoldersUseCase
-import uz.androdev.memorization.domain.usecase.impl.CreateFlashCardUseCaseImpl
-import uz.androdev.memorization.domain.usecase.impl.CreateFolderUseCaseImpl
-import uz.androdev.memorization.domain.usecase.impl.GetFlashCardsUseCaseImpl
-import uz.androdev.memorization.domain.usecase.impl.GetFoldersUseCaseImpl
+import uz.androdev.memorization.domain.usecase.*
+import uz.androdev.memorization.domain.usecase.impl.*
 
 /**
  * Created by: androdev
@@ -35,4 +29,7 @@ interface UseCaseModule {
 
     @Binds
     fun bindGetFlashCardsUseCase(impl: GetFlashCardsUseCaseImpl): GetFlashCardsUseCase
+
+    @Binds
+    fun bindUpdateFlashCardUseCase(impl: UpdateFlashCardUseCaseImpl): UpdateFlashCardUseCase
 }

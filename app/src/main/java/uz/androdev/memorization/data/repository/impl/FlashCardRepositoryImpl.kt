@@ -24,4 +24,9 @@ class FlashCardRepositoryImpl @Inject constructor(
     override fun getFlashCards(folderId: Long): Flow<List<FlashCard>> {
         return flashCardDataSource.getFlashCards(folderId)
     }
+
+    @Throws(IllegalArgumentException::class)
+    override suspend fun updateFlashCard(flashCard: FlashCard) {
+        flashCardDataSource.updateFlashCard(flashCard)
+    }
 }
