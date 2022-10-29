@@ -134,6 +134,7 @@ fun CreateFlashCardDialog(
                         modifier = Modifier.padding(start = 16.dp)
                     )
                 }
+                Spacer(modifier = Modifier.height(16.dp))
                 DialogTwoButtons(
                     negativeButtonText = stringResource(id = R.string.cancel),
                     positiveButtonText = stringResource(id = R.string.create),
