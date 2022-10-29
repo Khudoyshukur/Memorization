@@ -4,8 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import junit.framework.Assert.assertFalse
-import junit.framework.Assert.assertTrue
+import junit.framework.Assert.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -128,5 +127,21 @@ class TestFolderDao {
         val insertedFolder = folder.copy(id = id)
 
         assertTrue(insertedFolder == folderDao.getFolderByTitle(insertedFolder.title))
+    }
+
+    @Test
+    fun getFolderById_returnsCorrectFolder() = runTest {
+        val folder = with(FolderEntityFactory.createFolderEntityWithoutId()) {
+            this.copy(
+                id = folderDao.insertFolder(this)
+            )
+        }
+
+        assertEquals(folderDao.getFolderById(folder.id), folder)
+    }
+
+    @Test
+    fun getFolderById_whenNonExistentFolderRequested_shouldReturnNull() = runTest {
+        assertEquals(null, folderDao.getFolderById(-10L))
     }
 }
