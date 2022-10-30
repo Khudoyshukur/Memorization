@@ -13,5 +13,12 @@ import uz.androdev.memorization.model.model.Folder
 
 interface FolderRepository {
     suspend fun createFolder(folderInput: FolderInput)
+
+    @Throws(IllegalArgumentException::class)
+    suspend fun updateFolder(folder: Folder)
+
+    @Throws(IllegalArgumentException::class)
+    suspend fun removeFolder(folder: Folder)
+
     fun getFolders(): Flow<List<Folder>>
 }

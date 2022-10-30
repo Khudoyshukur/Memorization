@@ -47,4 +47,20 @@ class TestFolderRepository {
 
         Mockito.verify(folderDataSource).getFolders()
     }
+
+    @Test
+    fun updateFolder_shouldDelegateToDataSource() = runTest {
+        val folder = FolderFactory.createFolder()
+        folderRepository.updateFolder(folder)
+
+        Mockito.verify(folderDataSource).updateFolder(eq(folder))
+    }
+
+    @Test
+    fun removeFolder_shouldDelegateToDataSource() = runTest {
+        val folder = FolderFactory.createFolder()
+        folderRepository.removeFolder(folder)
+
+        Mockito.verify(folderDataSource).removeFolder(eq(folder))
+    }
 }

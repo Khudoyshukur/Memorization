@@ -29,4 +29,14 @@ class FolderRepositoryImpl @Inject constructor(
     override fun getFolders(): Flow<List<Folder>> {
         return folderDataSource.getFolders()
     }
+
+    @Throws(IllegalArgumentException::class)
+    override suspend fun updateFolder(folder: Folder) {
+        folderDataSource.updateFolder(folder)
+    }
+
+    @Throws(IllegalArgumentException::class)
+    override suspend fun removeFolder(folder: Folder) {
+        folderDataSource.removeFolder(folder)
+    }
 }
