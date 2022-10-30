@@ -55,4 +55,10 @@ open class FakeFolderDao @Inject constructor() : FolderDao {
     override suspend fun getFolderById(id: Long): FolderEntity? {
         return folders.value.find { it.id == id }
     }
+
+    override suspend fun removeFolder(folderId: Long) {
+       folders.update {
+           it.filter { it.id != folderId }
+       }
+    }
 }

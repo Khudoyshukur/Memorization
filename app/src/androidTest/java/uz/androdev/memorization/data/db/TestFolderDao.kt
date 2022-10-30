@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import junit.framework.Assert.*
+import org.junit.Assert.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -143,5 +143,35 @@ class TestFolderDao {
     @Test
     fun getFolderById_whenNonExistentFolderRequested_shouldReturnNull() = runTest {
         assertEquals(null, folderDao.getFolderById(-10L))
+    }
+
+    @Test
+    fun removeFolder_shouldRemoveRequestedFolder() = runTest {
+        val folders = List(5) {
+            with(FolderEntityFactory.createFolderEntityWithoutId()) {
+                this.copy(
+                    id = folderDao.insertFolder(this)
+                )
+            }
+        }
+
+        val randomFolder = folders.random()
+        folderDao.removeFolder(randomFolder.id)
+
+        assertFalse(folderDao.getFolders().first().contains(randomFolder))
+    }
+
+    @Test
+    fun removeFolder_whenNonExistentFolderRequested_shouldNotDeleteOtherFolders() = runTest {
+        val folders = List(5) {
+            with(FolderEntityFactory.createFolderEntityWithoutId()) {
+                this.copy(
+                    id = folderDao.insertFolder(this)
+                )
+            }
+        }
+        folderDao.removeFolder(-10L)
+
+        assertEquals(folderDao.getFolders().first().toSet(), folders.toSet())
     }
 }

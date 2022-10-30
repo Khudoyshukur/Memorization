@@ -57,4 +57,10 @@ class FakeFolderDao @Inject constructor() : FolderDao {
             it.id == id
         }
     }
+
+    override suspend fun removeFolder(folderId: Long) {
+        folders.update {
+            it.filter { it.id != folderId }
+        }
+    }
 }
