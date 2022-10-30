@@ -38,4 +38,7 @@ interface UseCaseModule {
 
     @Binds
     fun bindUpdateFolderUseCase(impl: UpdateFolderUseCaseImpl): UpdateFolderUseCase
+
+    @Binds
+    fun bindRemoveFolderUseCase(impl: RemoveFolderUseCaseImpl): RemoveFolderUseCase
 }
