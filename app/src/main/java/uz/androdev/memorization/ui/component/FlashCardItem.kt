@@ -64,9 +64,8 @@ fun FlashCardItem(
             }
             Text(
                 text = flashCard.question,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.outline,
-                maxLines = 3,
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
