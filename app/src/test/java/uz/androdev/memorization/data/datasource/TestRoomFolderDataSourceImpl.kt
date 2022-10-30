@@ -7,6 +7,7 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
+import org.mockito.kotlin.eq
 import uz.androdev.memorization.data.datasource.impl.RoomFolderDataSourceImpl
 import uz.androdev.memorization.data.fake.FakeFolderDao
 import uz.androdev.memorization.factory.FolderFactory
@@ -122,4 +123,23 @@ class TestRoomFolderDataSourceImpl {
 
         localFolderDataSourceImpl.updateFolder(folder)
     }
+
+
+    @Test
+    fun removeFolder_shouldDelegateToDao() = runTest {
+        localFolderDataSourceImpl.createFolder(FolderFactory.createUniqueFolderInput())
+
+        val folder = localFolderDataSourceImpl.getFolders().first().first()
+        localFolderDataSourceImpl.removeFolder(folder)
+
+        Mockito.verify(fakeFolderDao).removeFolder(eq(folder.id))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun removeFolder_whenNonExistentFolderRequested_shouldThrowIllegalArgumentException() =
+        runTest {
+            localFolderDataSourceImpl.removeFolder(
+                FolderFactory.createFolder().copy(id = 10L)
+            )
+        }
 }

@@ -46,6 +46,7 @@ class RoomFolderDataSourceImpl @Inject constructor(
         }
     }
 
+    @Throws(IllegalArgumentException::class)
     override suspend fun updateFolder(folder: Folder) {
         val entityInDb = folderDao.getFolderById(folder.id)
             ?: throw IllegalArgumentException("Folder not found!")
@@ -55,5 +56,12 @@ class RoomFolderDataSourceImpl @Inject constructor(
                 updatedAt = LocalDateTime.now()
             )
         )
+    }
+
+    @Throws(IllegalArgumentException::class)
+    override suspend fun removeFolder(folder: Folder) {
+        val folder = folderDao.getFolderById(folder.id)
+            ?: throw IllegalArgumentException("Folder not found!")
+        folderDao.removeFolder(folder.id)
     }
 }
