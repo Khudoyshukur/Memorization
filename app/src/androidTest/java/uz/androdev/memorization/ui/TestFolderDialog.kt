@@ -29,7 +29,7 @@ class TestFolderDialog {
 
     private val resources by lazy { composeRule.activity.resources }
     private val createFolderDialogMatcher by lazy { hasTestTag(resources.getString(R.string.create_folder_dialog)) }
-    private val createFolderDialogInputFieldMatcher by lazy { hasTestTag(resources.getString(R.string.create_folder_input_field)) }
+    private val createFolderDialogInputFieldMatcher by lazy { hasTestTag(resources.getString(R.string.folder_dialog_input)) }
     private val createFolderDialogPositiveButtonMatcher by lazy { hasText(positiveButtonText) }
     private val createFolderDialogNegativeButtonMatcher by lazy { hasText(negativeButtonText) }
     private val createFolderDialogTitleMatcher by lazy { hasText(title) }

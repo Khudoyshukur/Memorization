@@ -72,7 +72,7 @@ fun FolderDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 OutlinedTextField(
                     modifier = Modifier
-                        .testTag(stringResource(R.string.create_folder_input_field))
+                        .testTag(stringResource(R.string.folder_dialog_input))
                         .fillMaxWidth(),
                     value = input,
                     label = {

@@ -41,9 +41,12 @@ fun FolderScreenRoute(
         onCreateFolder = {
             viewModel.processAction(Action.CreateFolder(it))
         },
+        onUpdateFolder = {
+            viewModel.processAction(Action.UpdateFolder(it))
+        },
         onRemoveFolder = {
             viewModel.processAction(Action.RemoveFolder(it))
-        }
+        },
     )
 
     LaunchedEffect(key1 = uiState.foldersScreenError) {
@@ -68,10 +71,15 @@ fun FoldersScreen(
     folders: List<Folder>?,
     onFolderClicked: (Folder) -> Unit = {},
     onCreateFolder: (FolderInput) -> Unit = {},
-    onRemoveFolder: (Folder) -> Unit = {}
+    onRemoveFolder: (Folder) -> Unit = {},
+    onUpdateFolder: (Folder) -> Unit = {}
 ) {
     var showCreateFolderDialog by remember {
         mutableStateOf(false)
+    }
+
+    var folderToEdit by remember {
+        mutableStateOf<Folder?>(null)
     }
 
     Scaffold(
@@ -80,7 +88,10 @@ fun FoldersScreen(
                 modifier = Modifier.padding(it),
                 folders = folders,
                 onFolderClicked = onFolderClicked,
-                onRemoveFolded = onRemoveFolder
+                onRemoveFolded = onRemoveFolder,
+                onUpdateFolded = { folder ->
+                    folderToEdit = folder
+                }
             )
         },
         floatingActionButton = {
@@ -105,6 +116,20 @@ fun FoldersScreen(
             onPositiveButtonClicked = {
                 showCreateFolderDialog = false
                 onCreateFolder(it)
+            },
+        )
+    }
+
+    folderToEdit?.let { folder ->
+        FolderDialog(
+            titleText = stringResource(R.string.edit_folder),
+            positiveButtonText = stringResource(R.string.edit),
+            negativeButtonText = stringResource(R.string.cancel),
+            initialFolderName = folder.title,
+            onDismissRequested = { folderToEdit = null },
+            onPositiveButtonClicked = { input ->
+                folderToEdit = null
+                onUpdateFolder(folder.copy(title = input.title))
             },
         )
     }

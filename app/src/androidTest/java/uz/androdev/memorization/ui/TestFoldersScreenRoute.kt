@@ -28,6 +28,7 @@ import uz.androdev.memorization.factory.FolderEntityFactory
 import uz.androdev.memorization.fake.FakeFolderDao
 import uz.androdev.memorization.ui.screen.FolderScreenRoute
 import uz.androdev.memorization.ui.viewmodel.FoldersScreenViewModel
+import java.util.UUID
 import javax.inject.Inject
 
 /**
@@ -53,12 +54,13 @@ class TestFoldersScreenRoute {
     private val noItemsComponentMatcher by lazy { hasContentDescription(resources.getString(R.string.empty_folder)) }
     private val foldersLazyColumnMatcher by lazy { hasTestTag(resources.getString(R.string.folders_list)) }
     private val createFolderDialogMatcher by lazy { hasTestTag(resources.getString(R.string.create_folder_dialog)) }
-    private val createFolderDialogInputFieldMatcher by lazy { hasTestTag(resources.getString(R.string.create_folder_input_field)) }
+    private val folderDialogInputFieldMatcher by lazy { hasTestTag(resources.getString(R.string.folder_dialog_input)) }
     private val createFolderDialogCreateButtonMatcher by lazy { hasText(resources.getString(R.string.create)) }
+    private val folderDialogEditButtonMatcher by lazy { hasText(resources.getString(R.string.edit)) }
     private val addButtonMatcher by lazy { hasContentDescription(resources.getString(R.string.add_folder)) }
     private val folderOptionsButtonMatcher by lazy { hasContentDescription(resources.getString(R.string.options_menu_icon)) }
-    private val updateOptionMatcher by lazy { hasText(resources.getString(R.string.edit)) }
     private val removeOptionMatcher by lazy { hasText(resources.getString(R.string.remove)) }
+    private val editOptionMatcher by lazy { hasText(resources.getString(R.string.edit)) }
 
     @Inject
     lateinit var getFoldersUseCase: GetFoldersUseCase
@@ -123,7 +125,7 @@ class TestFoldersScreenRoute {
         val newFolderTitle = "My new folder"
 
         composeRule.onNode(addButtonMatcher).performClick()
-        composeRule.onNode(createFolderDialogInputFieldMatcher).performTextInput(newFolderTitle)
+        composeRule.onNode(folderDialogInputFieldMatcher).performTextInput(newFolderTitle)
         composeRule.onNode(createFolderDialogCreateButtonMatcher).performClick()
 
         composeRule.waitUntilExists(
@@ -160,5 +162,40 @@ class TestFoldersScreenRoute {
 
         val foldersInTheDao = folderDao.getFolders().first()
         assertFalse(foldersInTheDao.contains(randomFolder))
+    }
+
+    @Test
+    fun editFolder_shouldEditFolder() = runTest {
+        val folders = List(5) {
+            with(FolderEntityFactory.createFolderEntityWithoutId()) {
+                this.copy(id = folderDao.insertFolder(this))
+            }
+        }
+
+        composeRule.setContent {
+            FolderScreenRoute(onNavigateToItemsScreen = {}, viewModel = viewModel)
+        }
+
+        val randomFolderIndex = folders.indices.random()
+        val randomFolder = folders[randomFolderIndex]
+
+        composeRule.onAllNodes(folderOptionsButtonMatcher)[randomFolderIndex].performClick()
+        composeRule.onNode(editOptionMatcher).performClick()
+
+        // here dialog should be shown
+        val editedRandomFolder = randomFolder.copy(title = UUID.randomUUID().toString())
+        composeRule.onNode(folderDialogInputFieldMatcher).performTextClearance()
+        composeRule.onNode(folderDialogInputFieldMatcher).performTextInput(editedRandomFolder.title)
+        composeRule.onNode(folderDialogEditButtonMatcher).performClick()
+
+        composeRule.waitUntilExists(hasText(editedRandomFolder.title))
+        folders.filter { it != randomFolder }.forEach {
+            composeRule.onNode(hasText(it.title)).assertIsDisplayed()
+        }
+        composeRule.onNode(hasText(randomFolder.title)).assertDoesNotExist()
+
+        val foldersInTheDao = folderDao.getFolders().first()
+        assertFalse(foldersInTheDao.contains(randomFolder))
+        assertTrue(foldersInTheDao.any { it.title == editedRandomFolder.title })
     }
 }
