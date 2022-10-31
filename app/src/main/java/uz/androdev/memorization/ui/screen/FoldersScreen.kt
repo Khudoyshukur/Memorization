@@ -14,7 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import uz.androdev.memorization.R
 import uz.androdev.memorization.model.input.FolderInput
 import uz.androdev.memorization.model.model.Folder
-import uz.androdev.memorization.ui.component.CreateFolderDialog
+import uz.androdev.memorization.ui.component.FolderDialog
 import uz.androdev.memorization.ui.component.FoldersListComponent
 import uz.androdev.memorization.ui.viewmodel.Action
 import uz.androdev.memorization.ui.viewmodel.FoldersScreenError
@@ -47,7 +47,7 @@ fun FolderScreenRoute(
     )
 
     LaunchedEffect(key1 = uiState.foldersScreenError) {
-        when(uiState.foldersScreenError ?: return@LaunchedEffect) {
+        when (uiState.foldersScreenError ?: return@LaunchedEffect) {
             FoldersScreenError.FailedToCreateFolder,
             FoldersScreenError.FailedToRemoveFolder,
             FoldersScreenError.FailedToUpdateFolder -> {
@@ -97,12 +97,15 @@ fun FoldersScreen(
     )
 
     if (showCreateFolderDialog) {
-        CreateFolderDialog(
+        FolderDialog(
+            titleText = stringResource(R.string.create_folder),
+            positiveButtonText = stringResource(R.string.create),
+            negativeButtonText = stringResource(R.string.cancel),
             onDismissRequested = { showCreateFolderDialog = false },
-            onCreateFolder = {
+            onPositiveButtonClicked = {
                 showCreateFolderDialog = false
                 onCreateFolder(it)
-            }
+            },
         )
     }
 }

@@ -29,4 +29,5 @@
     <string name="edit">Edit</string>
     <string name="edit_flash_card">Edit Flash Card</string>
     <string name="options_menu_icon">Options menu icon</string>
+    <string name="folder_name">Folder Name</string>
 </resources>

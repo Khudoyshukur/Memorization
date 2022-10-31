@@ -31,12 +31,16 @@ import uz.androdev.memorization.model.input.FolderInput
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun CreateFolderDialog(
+fun FolderDialog(
+    titleText: String,
+    positiveButtonText: String,
+    negativeButtonText: String,
+    initialFolderName: String = "",
     onDismissRequested: () -> Unit,
-    onCreateFolder: (FolderInput) -> Unit
+    onPositiveButtonClicked: (FolderInput) -> Unit
 ) {
     var input by remember {
-        mutableStateOf("")
+        mutableStateOf(initialFolderName)
     }
     var showInputIsBlankMessageError by remember {
         mutableStateOf(false)
@@ -59,7 +63,7 @@ fun CreateFolderDialog(
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.create_folder),
+                    text = titleText,
                     modifier = Modifier.fillMaxWidth(),
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
@@ -71,6 +75,9 @@ fun CreateFolderDialog(
                         .testTag(stringResource(R.string.create_folder_input_field))
                         .fillMaxWidth(),
                     value = input,
+                    label = {
+                        Text(stringResource(R.string.folder_name))
+                    },
                     onValueChange = {
                         showInputIsBlankMessageError = false
                         input = it
@@ -96,8 +103,8 @@ fun CreateFolderDialog(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 DialogTwoButtons(
-                    negativeButtonText = stringResource(id = R.string.cancel),
-                    positiveButtonText = stringResource(id = R.string.create),
+                    negativeButtonText = negativeButtonText,
+                    positiveButtonText = positiveButtonText,
                     onNegativeButtonClicked = { onDismissRequested() },
                     onPositiveButtonClicked = {
                         if (input.isBlank()) {
@@ -106,7 +113,7 @@ fun CreateFolderDialog(
                             val folderInput = FolderInput(
                                 title = input.trim()
                             )
-                            onCreateFolder(folderInput)
+                            onPositiveButtonClicked(folderInput)
                         }
                     }
                 )
@@ -118,5 +125,11 @@ fun CreateFolderDialog(
 @Preview
 @Composable
 fun AddFolderDialogPreview() {
-    CreateFolderDialog(onDismissRequested = {}, onCreateFolder = {})
+    FolderDialog(
+        titleText = "title",
+        positiveButtonText = "positive",
+        negativeButtonText = "negative",
+        onDismissRequested = {},
+        onPositiveButtonClicked = {},
+    )
 }
