@@ -2,9 +2,8 @@ package uz.androdev.memorization.ui.viewmodel
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -12,8 +11,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
@@ -23,8 +21,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import uz.androdev.memorization.domain.response.UnitFailure
 import uz.androdev.memorization.domain.response.UseCaseResponse
-import uz.androdev.memorization.domain.usecase.CreateFolderUseCase
-import uz.androdev.memorization.domain.usecase.GetFoldersUseCase
+import uz.androdev.memorization.domain.usecase.*
 import uz.androdev.memorization.factory.FolderFactory
 import uz.androdev.memorization.model.model.Folder
 
@@ -40,6 +37,8 @@ class TestFoldersScreenViewModel {
     private lateinit var viewModel: FoldersScreenViewModel
     private lateinit var createFolderUseCase: CreateFolderUseCase
     private lateinit var getFoldersUseCase: GetFoldersUseCase
+    private lateinit var updateFolderUseCase: UpdateFolderUseCase
+    private lateinit var removeFolderUseCase: RemoveFolderUseCase
 
     private val testDispatcher = UnconfinedTestDispatcher()
 
@@ -49,11 +48,18 @@ class TestFoldersScreenViewModel {
 
         createFolderUseCase = mock()
         getFoldersUseCase = mock()
+        updateFolderUseCase = mock()
+        removeFolderUseCase = mock()
 
         whenever(getFoldersUseCase.invoke())
             .thenReturn(flowOf(emptyList()))
 
-        viewModel = FoldersScreenViewModel(getFoldersUseCase, createFolderUseCase)
+        viewModel = FoldersScreenViewModel(
+            getFoldersUseCase,
+            createFolderUseCase,
+            updateFolderUseCase,
+            removeFolderUseCase
+        )
     }
 
     @After
@@ -62,66 +68,27 @@ class TestFoldersScreenViewModel {
     }
 
     @Test
-    fun testInitialState() = runTest {
+    fun testInitialState() {
         whenever(getFoldersUseCase())
-            .thenReturn(
-                flow {
-                    delay(1000)
-                    emit(emptyList())
-                }
-            )
-        viewModel = FoldersScreenViewModel(getFoldersUseCase, createFolderUseCase)
-
-        val job = launch(UnconfinedTestDispatcher()) {
-            viewModel.uiState.collect {}
-        }
-
-        assertEquals(
-            UiState(
-                folders = null,
-                failedToCreateFolder = false
-            ), viewModel.uiState.value
+            .then {
+                assertEquals(viewModel.uiState.value.folders, null)
+                assertEquals(viewModel.uiState.value.foldersScreenError, null)
+                assertEquals(viewModel.uiState.value.progress, FoldersScreenProgressState())
+                flowOf(emptyList<Folder>())
+            }
+        viewModel = FoldersScreenViewModel(
+            getFoldersUseCase,
+            createFolderUseCase,
+            updateFolderUseCase,
+            removeFolderUseCase
         )
-        job.cancel()
-    }
 
-    @Test
-    fun createFolder_whenErrorOccurred_uiStateShouldNotifyError() = runTest {
-        whenever(getFoldersUseCase.invoke())
-            .thenReturn(flowOf(listOf(Folder(1, ""))))
-
-        whenever(createFolderUseCase.invoke(any()))
-            .thenReturn(UseCaseResponse.Failure(UnitFailure))
-        viewModel = FoldersScreenViewModel(getFoldersUseCase, createFolderUseCase)
-
-        val job = launch(UnconfinedTestDispatcher()) {
-            viewModel.uiState.collect {}
+        invokeCollectingUiState {
+            val uiState = viewModel.uiState.first()
+            assertEquals(uiState.folders, emptyList<Folder>())
+            assertEquals(uiState.foldersScreenError, null)
+            assertEquals(uiState.progress, FoldersScreenProgressState())
         }
-        viewModel.processAction(Action.CreateFolder(FolderFactory.createUniqueFolderInput()))
-
-        val uiState = viewModel.uiState.value
-        assertEquals(true, uiState.failedToCreateFolder)
-
-        job.cancel()
-    }
-
-    @Test
-    fun whenErrorPresented_shouldChangeInternalState() = runTest {
-        whenever(createFolderUseCase.invoke(any()))
-            .thenReturn(UseCaseResponse.Failure(UnitFailure))
-        viewModel.processAction(Action.CreateFolder(FolderFactory.createUniqueFolderInput()))
-
-        val job = launch(UnconfinedTestDispatcher()) {
-            viewModel.uiState.collect {}
-        }
-
-        viewModel.processAction(Action.CreateFolder(FolderFactory.createUniqueFolderInput()))
-        assertEquals(true, viewModel.uiState.value.failedToCreateFolder)
-
-        viewModel.processAction(Action.FolderCreationFailurePresented)
-        assertEquals(false, viewModel.uiState.value.failedToCreateFolder)
-
-        job.cancel()
     }
 
     @Test
@@ -129,18 +96,19 @@ class TestFoldersScreenViewModel {
         val folders = MutableStateFlow<List<Folder>>(emptyList())
         whenever(getFoldersUseCase())
             .thenReturn(folders)
-        viewModel = FoldersScreenViewModel(getFoldersUseCase, createFolderUseCase)
+        viewModel = FoldersScreenViewModel(
+            getFoldersUseCase,
+            createFolderUseCase,
+            updateFolderUseCase,
+            removeFolderUseCase
+        )
 
-        val job = launch(UnconfinedTestDispatcher()) {
-            viewModel.uiState.collect {}
+        invokeCollectingUiState {
+            assertEquals(folders.value, viewModel.uiState.value.folders)
+
+            folders.emit(listOf(FolderFactory.createFolder()))
+            assertEquals(folders.value, viewModel.uiState.value.folders)
         }
-
-        assertEquals(folders.value, viewModel.uiState.value.folders)
-
-        folders.emit(listOf(FolderFactory.createFolder()))
-        assertEquals(folders.value, viewModel.uiState.value.folders)
-
-        job.cancel()
     }
 
     @Test
@@ -149,5 +117,130 @@ class TestFoldersScreenViewModel {
 
         viewModel.processAction(Action.CreateFolder(folderInput))
         Mockito.verify(createFolderUseCase).invoke(eq(folderInput))
+    }
+
+    @Test
+    fun updateFolder_delegatesToUseCase() = runTest {
+        val folder = FolderFactory.createFolder()
+
+        viewModel.processAction(Action.UpdateFolder(folder))
+        Mockito.verify(updateFolderUseCase).invoke(eq(folder))
+    }
+
+    @Test
+    fun removeFolder_delegatesToUseCase() = runTest {
+        val folder = FolderFactory.createFolder()
+
+        viewModel.processAction(Action.RemoveFolder(folder))
+        Mockito.verify(removeFolderUseCase).invoke(eq(folder))
+    }
+
+    @Test
+    fun createFolder_shouldUpdateProgressState() = runTest {
+        whenever(createFolderUseCase.invoke(any()))
+            .then {
+                assertTrue(viewModel.uiState.value.progress.creatingFolder)
+                UseCaseResponse.Success(Unit)
+            }
+
+        invokeCollectingUiState {
+            viewModel.processAction(Action.CreateFolder(FolderFactory.createUniqueFolderInput()))
+            assertFalse(viewModel.uiState.value.progress.creatingFolder)
+        }
+    }
+
+    @Test
+    fun updateFolder_shouldUpdateProgressState() = runTest {
+        whenever(updateFolderUseCase.invoke(any()))
+            .then {
+                assertTrue(viewModel.uiState.value.progress.updatingFolder)
+                UseCaseResponse.Success(Unit)
+            }
+
+        invokeCollectingUiState {
+            viewModel.processAction(Action.UpdateFolder(FolderFactory.createFolder()))
+            assertFalse(viewModel.uiState.value.progress.updatingFolder)
+        }
+    }
+
+    @Test
+    fun removeFolder_shouldUpdateProgressState() = runTest {
+        whenever(removeFolderUseCase.invoke(any()))
+            .then {
+                assertTrue(viewModel.uiState.value.progress.removingFolder)
+                UseCaseResponse.Success(Unit)
+            }
+
+        invokeCollectingUiState {
+            viewModel.processAction(Action.RemoveFolder(FolderFactory.createFolder()))
+            assertFalse(viewModel.uiState.value.progress.removingFolder)
+        }
+    }
+
+    @Test
+    fun createFolder_whenErrorOccurred_uiStateShouldNotifyError() = runTest {
+        whenever(createFolderUseCase.invoke(any()))
+            .thenReturn(UseCaseResponse.Failure(UnitFailure))
+
+        invokeCollectingUiState {
+            viewModel.processAction(Action.CreateFolder(FolderFactory.createUniqueFolderInput()))
+
+            val uiState = viewModel.uiState.value
+            assertEquals(uiState.foldersScreenError, FoldersScreenError.FailedToCreateFolder)
+        }
+    }
+
+    @Test
+    fun updateFolder_whenErrorOccurred_uiStateShouldNotifyError() = runTest {
+        whenever(updateFolderUseCase.invoke(any()))
+            .thenReturn(UseCaseResponse.Failure(UpdateFolderUseCaseFailure.UnknownError))
+
+
+        invokeCollectingUiState {
+            viewModel.processAction(Action.UpdateFolder(FolderFactory.createFolder()))
+
+            val uiState = viewModel.uiState.value
+            assertEquals(uiState.foldersScreenError, FoldersScreenError.FailedToUpdateFolder)
+        }
+    }
+
+    @Test
+    fun removeFolder_whenErrorOccurred_uiStateShouldNotifyError() = runTest {
+        whenever(removeFolderUseCase.invoke(any()))
+            .thenReturn(UseCaseResponse.Failure(RemoveFolderUseCaseFailure.UnknownError))
+
+
+        invokeCollectingUiState {
+            viewModel.processAction(Action.RemoveFolder(FolderFactory.createFolder()))
+
+            val uiState = viewModel.uiState.value
+            assertEquals(uiState.foldersScreenError, FoldersScreenError.FailedToRemoveFolder)
+        }
+    }
+
+    @Test
+    fun whenErrorPresented_shouldChangeInternalState() = runTest {
+        whenever(createFolderUseCase.invoke(any()))
+            .thenReturn(UseCaseResponse.Failure(UnitFailure))
+        viewModel.processAction(Action.CreateFolder(FolderFactory.createUniqueFolderInput()))
+
+        invokeCollectingUiState {
+            viewModel.processAction(Action.CreateFolder(FolderFactory.createUniqueFolderInput()))
+            assertEquals(
+                viewModel.uiState.value.foldersScreenError,
+                FoldersScreenError.FailedToCreateFolder
+            )
+
+            viewModel.processAction(Action.FoldersScreenErrorPresented)
+            assertEquals(viewModel.uiState.value.foldersScreenError, null)
+        }
+    }
+
+    private fun invokeCollectingUiState(block: suspend () -> Unit) = runTest {
+        val job = launch(UnconfinedTestDispatcher()) {
+            viewModel.uiState.collect {}
+        }
+        block()
+        job.cancel()
     }
 }
