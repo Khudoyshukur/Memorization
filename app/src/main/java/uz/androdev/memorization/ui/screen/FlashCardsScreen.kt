@@ -1,6 +1,7 @@
 package uz.androdev.memorization.ui.screen
 
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -94,6 +95,12 @@ fun FlashCardsScreen(
     val coroutineScope = rememberCoroutineScope()
     var flashCardToEdit by remember {
         mutableStateOf<FlashCard?>(null)
+    }
+
+    if (sheetState.isVisible) {
+        BackHandler {
+            coroutineScope.launch { sheetState.hide() }
+        }
     }
 
     ModalBottomSheetLayout(
