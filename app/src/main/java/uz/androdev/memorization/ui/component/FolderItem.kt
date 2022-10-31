@@ -1,8 +1,11 @@
 package uz.androdev.memorization.ui.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -26,8 +29,14 @@ import uz.androdev.memorization.model.model.Folder
 fun FolderItem(
     modifier: Modifier = Modifier,
     folder: Folder,
-    onFolderClicked: (folder: Folder) -> Unit = {}
+    onFolderClicked: (folder: Folder) -> Unit = {},
+    onUpdateFolded: (folder: Folder) -> Unit = {},
+    onRemoveFolded: (folder: Folder) -> Unit = {},
 ) {
+    var showDropDownMenu by remember {
+        mutableStateOf(false)
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth(),
@@ -56,9 +65,50 @@ fun FolderItem(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = 8.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(horizontal = 8.dp)
                     .align(Alignment.CenterVertically)
             )
+
+            Box(
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ){
+                Icon(
+                    modifier = Modifier
+                        .height(24.dp)
+                        .width(24.dp)
+                        .clickable {
+                            showDropDownMenu = true
+                        },
+                    imageVector = Icons.Filled.MoreVert,
+                    contentDescription = stringResource(R.string.options_menu_icon)
+                )
+
+                DropdownMenu(
+                    expanded = showDropDownMenu,
+                    onDismissRequest = { showDropDownMenu = false },
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(stringResource(R.string.remove))
+                        },
+                        onClick = {
+                            showDropDownMenu = false
+                            onRemoveFolded(folder)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(stringResource(R.string.edit))
+                        },
+                        onClick = {
+                            showDropDownMenu = false
+                            onUpdateFolded(folder)
+                        }
+                    )
+                }
+            }
         }
     }
 }

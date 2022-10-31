@@ -8,7 +8,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -18,6 +17,7 @@ import uz.androdev.memorization.model.model.Folder
 import uz.androdev.memorization.ui.component.CreateFolderDialog
 import uz.androdev.memorization.ui.component.FoldersListComponent
 import uz.androdev.memorization.ui.viewmodel.Action
+import uz.androdev.memorization.ui.viewmodel.FoldersScreenError
 import uz.androdev.memorization.ui.viewmodel.FoldersScreenViewModel
 
 /**
@@ -40,16 +40,24 @@ fun FolderScreenRoute(
         onFolderClicked = onNavigateToItemsScreen,
         onCreateFolder = {
             viewModel.processAction(Action.CreateFolder(it))
+        },
+        onRemoveFolder = {
+            viewModel.processAction(Action.RemoveFolder(it))
         }
     )
 
-    LaunchedEffect(key1 = uiState.failedToCreateFolder) {
-        if (uiState.failedToCreateFolder) {
-            Toast.makeText(
-                context,
-                context.getString(R.string.operation_failed),
-                Toast.LENGTH_LONG
-            ).show()
+    LaunchedEffect(key1 = uiState.foldersScreenError) {
+        when(uiState.foldersScreenError ?: return@LaunchedEffect) {
+            FoldersScreenError.FailedToCreateFolder,
+            FoldersScreenError.FailedToRemoveFolder,
+            FoldersScreenError.FailedToUpdateFolder -> {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.operation_failed),
+                    Toast.LENGTH_LONG
+                ).show()
+                viewModel.processAction(Action.FoldersScreenErrorPresented)
+            }
         }
     }
 }
@@ -59,7 +67,8 @@ fun FolderScreenRoute(
 fun FoldersScreen(
     folders: List<Folder>?,
     onFolderClicked: (Folder) -> Unit = {},
-    onCreateFolder: (FolderInput) -> Unit = {}
+    onCreateFolder: (FolderInput) -> Unit = {},
+    onRemoveFolder: (Folder) -> Unit = {}
 ) {
     var showCreateFolderDialog by remember {
         mutableStateOf(false)
@@ -70,7 +79,8 @@ fun FoldersScreen(
             FoldersListComponent(
                 modifier = Modifier.padding(it),
                 folders = folders,
-                onFolderClicked = onFolderClicked
+                onFolderClicked = onFolderClicked,
+                onRemoveFolded = onRemoveFolder
             )
         },
         floatingActionButton = {

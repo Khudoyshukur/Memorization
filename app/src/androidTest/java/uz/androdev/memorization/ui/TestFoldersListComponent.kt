@@ -27,6 +27,9 @@ class TestFoldersListComponent {
     private val progressBarMatcher by lazy { hasTestTag(resources.getString(R.string.progress_bar)) }
     private val noItemsComponentMatcher by lazy { hasContentDescription(resources.getString(R.string.empty_folder)) }
     private val foldersLazyColumnMatcher by lazy { hasTestTag(resources.getString(R.string.folders_list)) }
+    private val folderOptionsButtonMatcher by lazy { hasContentDescription(resources.getString(R.string.options_menu_icon)) }
+    private val updateOptionMatcher by lazy { hasText(resources.getString(R.string.edit)) }
+    private val removeOptionMatcher by lazy { hasText(resources.getString(R.string.remove)) }
 
     @Test
     fun whenListIsNull_shouldShowLoading() {
@@ -93,7 +96,7 @@ class TestFoldersListComponent {
     }
 
     @Test
-    fun whenFolderClicked_shouldInvokeCallback() {
+    fun whenFolderClicked_shouldInvokeOnClickCallback() {
         val onFolderClicked: (Folder) -> Unit = mock()
         val folders = List(5) {
             Folder(it.toLong(), "Folder$it")
@@ -105,12 +108,62 @@ class TestFoldersListComponent {
             )
         }
 
-        val randomFolder = folders.last()
+        val randomFolder = folders.random()
         composeTestRule.onNode(foldersLazyColumnMatcher).performScrollToNode(
             hasText(randomFolder.title)
         )
         composeTestRule.onNode(hasText(randomFolder.title)).performClick()
 
         Mockito.verify(onFolderClicked).invoke(eq(randomFolder))
+    }
+
+    @Test
+    fun removeFolderAction_shouldInvokeRemoveFolderCallback() {
+        val onRemoveFolder: (Folder) -> Unit = mock()
+        val folders = List(5) {
+            Folder(it.toLong(), "Folder$it")
+        }
+        composeTestRule.setContent {
+            FoldersListComponent(
+                folders = folders,
+                onRemoveFolded = onRemoveFolder
+            )
+        }
+
+        val indexOfRandomFolder = folders.indices.random()
+        val randomFolder = folders[indexOfRandomFolder]
+
+        composeTestRule.onNode(foldersLazyColumnMatcher).performScrollToNode(
+            hasText(randomFolder.title)
+        )
+        composeTestRule.onAllNodes(folderOptionsButtonMatcher)[indexOfRandomFolder].performClick()
+        composeTestRule.onNode(removeOptionMatcher).performClick()
+
+        Mockito.verify(onRemoveFolder).invoke(eq(randomFolder))
+    }
+
+    @Test
+    fun updateFolderAction_shouldInvokeUpdateFolderCallback() {
+        val onUpdateFolder: (Folder) -> Unit = mock()
+        val folders = List(5) {
+            Folder(it.toLong(), "Folder$it")
+        }
+        composeTestRule.setContent {
+            FoldersListComponent(
+                folders = folders,
+                onUpdateFolded = onUpdateFolder
+            )
+        }
+
+        val indexOfRandomFolder = folders.indices.random()
+        val randomFolder = folders[indexOfRandomFolder]
+
+        composeTestRule.onNode(foldersLazyColumnMatcher).performScrollToNode(
+            hasText(randomFolder.title)
+        )
+        composeTestRule.onAllNodes(folderOptionsButtonMatcher)[indexOfRandomFolder].performClick()
+        composeTestRule.onNode(updateOptionMatcher).performClick()
+
+        Mockito.verify(onUpdateFolder).invoke(eq(randomFolder))
     }
 }

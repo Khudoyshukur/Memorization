@@ -28,4 +28,5 @@
     <string name="remove">Remove</string>
     <string name="edit">Edit</string>
     <string name="edit_flash_card">Edit Flash Card</string>
+    <string name="options_menu_icon">Options menu icon</string>
 </resources>

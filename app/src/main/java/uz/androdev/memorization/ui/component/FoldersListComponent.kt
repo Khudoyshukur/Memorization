@@ -28,7 +28,9 @@ import java.util.*
 fun FoldersListComponent(
     modifier: Modifier = Modifier,
     folders: List<Folder>?,
-    onFolderClicked: (Folder) -> Unit = {}
+    onFolderClicked: (Folder) -> Unit = {},
+    onUpdateFolded: (folder: Folder) -> Unit = {},
+    onRemoveFolded: (folder: Folder) -> Unit = {},
 ) {
     if (folders == null) {
         Box(modifier = modifier.fillMaxSize()) {
@@ -57,7 +59,9 @@ fun FoldersListComponent(
                 items(items = folders, key = { it.id }) {
                     FolderItem(
                         folder = it,
-                        onFolderClicked = onFolderClicked
+                        onFolderClicked = onFolderClicked,
+                        onUpdateFolded = onUpdateFolded,
+                        onRemoveFolded = onRemoveFolded
                     )
                     Divider(thickness = 16.dp, color = Color.Transparent)
                 }

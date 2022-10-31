@@ -11,6 +11,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -21,6 +22,9 @@ import uz.androdev.memorization.data.db.dao.FolderDao
 import uz.androdev.memorization.di.FoldersDaoModule
 import uz.androdev.memorization.domain.usecase.CreateFolderUseCase
 import uz.androdev.memorization.domain.usecase.GetFoldersUseCase
+import uz.androdev.memorization.domain.usecase.RemoveFolderUseCase
+import uz.androdev.memorization.domain.usecase.UpdateFolderUseCase
+import uz.androdev.memorization.factory.FolderEntityFactory
 import uz.androdev.memorization.fake.FakeFolderDao
 import uz.androdev.memorization.ui.screen.FolderScreenRoute
 import uz.androdev.memorization.ui.viewmodel.FoldersScreenViewModel
@@ -52,12 +56,21 @@ class TestFoldersScreenRoute {
     private val createFolderDialogInputFieldMatcher by lazy { hasTestTag(resources.getString(R.string.create_folder_input_field)) }
     private val createFolderDialogCreateButtonMatcher by lazy { hasText(resources.getString(R.string.create)) }
     private val addButtonMatcher by lazy { hasContentDescription(resources.getString(R.string.add_folder)) }
+    private val folderOptionsButtonMatcher by lazy { hasContentDescription(resources.getString(R.string.options_menu_icon)) }
+    private val updateOptionMatcher by lazy { hasText(resources.getString(R.string.edit)) }
+    private val removeOptionMatcher by lazy { hasText(resources.getString(R.string.remove)) }
 
     @Inject
     lateinit var getFoldersUseCase: GetFoldersUseCase
 
     @Inject
     lateinit var createFoldersUseCase: CreateFolderUseCase
+
+    @Inject
+    lateinit var removeFolderUseCase: RemoveFolderUseCase
+
+    @Inject
+    lateinit var updateFolderUseCase: UpdateFolderUseCase
 
     @BindValue
     @JvmField
@@ -71,7 +84,12 @@ class TestFoldersScreenRoute {
     fun setUp() {
         hiltRule.inject()
 
-        viewModel = FoldersScreenViewModel(getFoldersUseCase, createFoldersUseCase)
+        viewModel = FoldersScreenViewModel(
+            getFoldersUseCase,
+            createFoldersUseCase,
+            updateFolderUseCase,
+            removeFolderUseCase
+        )
     }
 
     @Test
@@ -114,5 +132,33 @@ class TestFoldersScreenRoute {
 
         val foldersInTheDao = folderDao.getFolders().first()
         assertTrue(foldersInTheDao.count { it.title == newFolderTitle } == 1)
+    }
+
+    @Test
+    fun removeFolderAction_shouldRemoveFolder() = runTest {
+        val folders = List(5) {
+            with(FolderEntityFactory.createFolderEntityWithoutId()) {
+                this.copy(id = folderDao.insertFolder(this))
+            }
+        }
+
+        composeRule.setContent {
+            FolderScreenRoute(onNavigateToItemsScreen = {}, viewModel = viewModel)
+        }
+
+        val randomFolderIndex = folders.indices.random()
+        val randomFolder = folders[randomFolderIndex]
+
+        composeRule.onAllNodes(folderOptionsButtonMatcher)[randomFolderIndex].performClick()
+        composeRule.onNode(removeOptionMatcher).performClick()
+
+        composeRule.waitUntilDoesNotExist(hasText(randomFolder.title))
+
+        folders.filter { it != randomFolder }.forEach {
+            composeRule.onNode(hasText(it.title)).assertIsDisplayed()
+        }
+
+        val foldersInTheDao = folderDao.getFolders().first()
+        assertFalse(foldersInTheDao.contains(randomFolder))
     }
 }
