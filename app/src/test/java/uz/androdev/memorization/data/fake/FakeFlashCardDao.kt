@@ -3,6 +3,7 @@ package uz.androdev.memorization.data.fake
 import kotlinx.coroutines.flow.*
 import uz.androdev.memorization.data.db.dao.FlashCardDao
 import uz.androdev.memorization.model.entity.FlashCardEntity
+import uz.androdev.memorization.model.enums.MemorizationLevel
 
 /**
  * Created by: androdev
@@ -55,5 +56,25 @@ class FakeFlashCardDao : FlashCardDao {
         flashCards.update { list ->
             list.filter { it.id != id }
         }
+    }
+
+    override suspend fun getFlashCardsRepetitionCountAscending(
+        folderId: Long,
+        memorizationLevel: MemorizationLevel
+    ): List<FlashCardEntity> {
+        return flashCards.value.filter {
+            it.folderId == folderId &&
+                    it.memorizationLevel == memorizationLevel
+        }.sortedBy { it.repetitionCount }
+    }
+
+    override suspend fun getFlashCardsRepetitionCountDescending(
+        folderId: Long,
+        memorizationLevel: MemorizationLevel
+    ): List<FlashCardEntity> {
+        return flashCards.value.filter {
+            it.folderId == folderId &&
+                    it.memorizationLevel == memorizationLevel
+        }.sortedByDescending { it.repetitionCount }
     }
 }

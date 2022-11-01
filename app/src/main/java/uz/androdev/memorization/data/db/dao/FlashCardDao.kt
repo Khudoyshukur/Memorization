@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import uz.androdev.memorization.model.entity.FlashCardEntity
+import uz.androdev.memorization.model.enums.MemorizationLevel
 
 /**
  * Created by: androdev
@@ -30,4 +31,24 @@ interface FlashCardDao {
 
     @Query("delete from flash_cards where id=:id")
     suspend fun removeFlashCard(id: Long)
+
+    @Query("""
+        select * from flash_cards
+        where folder_id=:folderId and memorization_level=:memorizationLevel
+        order by repetition_count asc
+    """)
+    suspend fun getFlashCardsRepetitionCountAscending(
+        folderId: Long,
+        memorizationLevel: MemorizationLevel
+    ): List<FlashCardEntity>
+
+    @Query("""
+        select * from flash_cards
+        where folder_id=:folderId and memorization_level=:memorizationLevel
+        order by repetition_count desc
+    """)
+    suspend fun getFlashCardsRepetitionCountDescending(
+        folderId: Long,
+        memorizationLevel: MemorizationLevel
+    ): List<FlashCardEntity>
 }

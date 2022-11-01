@@ -16,6 +16,7 @@ import uz.androdev.memorization.data.db.dao.FolderDao
 import uz.androdev.memorization.factory.FlashCardEntityFactory
 import uz.androdev.memorization.factory.FolderEntityFactory
 import uz.androdev.memorization.model.entity.FlashCardEntity
+import uz.androdev.memorization.model.enums.MemorizationLevel
 
 /**
  * Created by: androdev
@@ -161,6 +162,136 @@ class TestFlashCardDao {
         flashCardEntities.forEach {
             if (it.id != flashCardEntityToRemove.id) {
                 assertNotNull(flashCardDao.getFlashCardById(it.id))
+            }
+        }
+    }
+
+    @Test
+    fun getFlashCardsByRepetitionCountAscending_shouldReturnFlashCardsByItsArguments() = runTest {
+        val folder1 = with(FolderEntityFactory.createFolderEntityWithoutId()) {
+            this.copy(
+                id = folderDao.insertFolder(this)
+            )
+        }
+        val folder2 = with(FolderEntityFactory.createFolderEntityWithoutId()) {
+            this.copy(
+                id = folderDao.insertFolder(this)
+            )
+        }
+
+        val flashCards = List(100) {
+            with(
+                FlashCardEntityFactory
+                    .createNewFlashCard(
+                        folderId = if (it % 2 == 0) {
+                            folder1.id
+                        } else {
+                            folder2.id
+                        }
+                    ).copy(
+                        repetitionCount = (0..1000L).random(),
+                        memorizationLevel = MemorizationLevel.values().random()
+                    )
+            ) {
+                this.copy(
+                    id = flashCardDao.insertFlashCard(this)
+                )
+            }
+        }
+
+        MemorizationLevel.values().forEach { memorizationLevel ->
+            val retrievedFolder1FlashCards = flashCardDao.getFlashCardsRepetitionCountAscending(
+                folderId = folder1.id,
+                memorizationLevel = memorizationLevel,
+            )
+            val actualFolder1FlashCards = flashCards.filter {
+                it.folderId == folder1.id &&
+                        it.memorizationLevel == memorizationLevel
+            }.sortedBy { it.repetitionCount }
+
+            assertEquals(retrievedFolder1FlashCards.size, actualFolder1FlashCards.size)
+
+            retrievedFolder1FlashCards.forEachIndexed { index, flashCardEntity ->
+                assertEquals(flashCardEntity, actualFolder1FlashCards[index])
+            }
+
+            val retrievedFolder2FlashCards = flashCardDao.getFlashCardsRepetitionCountAscending(
+                folderId = folder2.id,
+                memorizationLevel = memorizationLevel,
+            )
+            val actualFolder2FlashCards = flashCards.filter {
+                it.folderId == folder2.id &&
+                        it.memorizationLevel == memorizationLevel
+            }.sortedBy { it.repetitionCount }
+            assertEquals(retrievedFolder2FlashCards.size, actualFolder2FlashCards.size)
+
+            retrievedFolder2FlashCards.forEachIndexed { index, flashCardEntity ->
+                assertEquals(flashCardEntity, actualFolder2FlashCards[index])
+            }
+        }
+    }
+
+    @Test
+    fun getFlashCardsByRepetitionCountDescending_shouldReturnFlashCardsByItsArguments() = runTest {
+        val folder1 = with(FolderEntityFactory.createFolderEntityWithoutId()) {
+            this.copy(
+                id = folderDao.insertFolder(this)
+            )
+        }
+        val folder2 = with(FolderEntityFactory.createFolderEntityWithoutId()) {
+            this.copy(
+                id = folderDao.insertFolder(this)
+            )
+        }
+
+        val flashCards = List(100) {
+            with(
+                FlashCardEntityFactory
+                    .createNewFlashCard(
+                        folderId = if (it % 2 == 0) {
+                            folder1.id
+                        } else {
+                            folder2.id
+                        }
+                    ).copy(
+                        repetitionCount = (0..1000L).random(),
+                        memorizationLevel = MemorizationLevel.values().random()
+                    )
+            ) {
+                this.copy(
+                    id = flashCardDao.insertFlashCard(this)
+                )
+            }
+        }
+
+        MemorizationLevel.values().forEach { memorizationLevel ->
+            val retrievedFolder1FlashCards = flashCardDao.getFlashCardsRepetitionCountDescending(
+                folderId = folder1.id,
+                memorizationLevel = memorizationLevel,
+            )
+            val actualFolder1FlashCards = flashCards.filter {
+                it.folderId == folder1.id &&
+                        it.memorizationLevel == memorizationLevel
+            }.sortedByDescending { it.repetitionCount }
+
+            assertEquals(retrievedFolder1FlashCards.size, actualFolder1FlashCards.size)
+
+            retrievedFolder1FlashCards.forEachIndexed { index, flashCardEntity ->
+                assertEquals(flashCardEntity, actualFolder1FlashCards[index])
+            }
+
+            val retrievedFolder2FlashCards = flashCardDao.getFlashCardsRepetitionCountDescending(
+                folderId = folder2.id,
+                memorizationLevel = memorizationLevel,
+            )
+            val actualFolder2FlashCards = flashCards.filter {
+                it.folderId == folder2.id &&
+                        it.memorizationLevel == memorizationLevel
+            }.sortedByDescending { it.repetitionCount }
+            assertEquals(retrievedFolder2FlashCards.size, actualFolder2FlashCards.size)
+
+            retrievedFolder2FlashCards.forEachIndexed { index, flashCardEntity ->
+                assertEquals(flashCardEntity, actualFolder2FlashCards[index])
             }
         }
     }
