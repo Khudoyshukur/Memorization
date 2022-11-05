@@ -41,4 +41,7 @@ interface UseCaseModule {
 
     @Binds
     fun bindRemoveFolderUseCase(impl: RemoveFolderUseCaseImpl): RemoveFolderUseCase
+
+    @Binds
+    fun bindGetPracticeFlashCardsUseCase(impl: GetPracticeFlashCardsUseCaseImpl): GetPracticeFlashCardsUseCase
 }
