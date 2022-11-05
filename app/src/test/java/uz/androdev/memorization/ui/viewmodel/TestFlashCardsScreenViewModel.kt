@@ -22,6 +22,7 @@ import uz.androdev.memorization.domain.response.UnitFailure
 import uz.androdev.memorization.domain.response.UseCaseResponse
 import uz.androdev.memorization.domain.usecase.*
 import uz.androdev.memorization.factory.FlashCardFactory
+import uz.androdev.memorization.model.enums.MemorizationLevel
 import uz.androdev.memorization.model.model.FlashCard
 import uz.androdev.memorization.ui.navigation.Arguments
 
@@ -184,7 +185,8 @@ class TestFlashCardsScreenViewModel {
                 flashCard = FlashCard(
                     id = 10L,
                     question = faker.lorem().characters(),
-                    answer = faker.lorem().characters()
+                    answer = faker.lorem().characters(),
+                    memorizationLevel = MemorizationLevel.HIGH
                 )
             )
             whenever(removeFlashCardUseCase(any()))
@@ -205,7 +207,8 @@ class TestFlashCardsScreenViewModel {
                 flashCard = FlashCard(
                     id = 10L,
                     question = faker.lorem().characters(),
-                    answer = faker.lorem().characters()
+                    answer = faker.lorem().characters(),
+                    memorizationLevel = MemorizationLevel.HIGH
                 )
             )
             whenever(updateFlashCardUseCase(any()))
@@ -260,7 +263,8 @@ class TestFlashCardsScreenViewModel {
             FlashCard(
                 id = 10L,
                 question = faker.lorem().characters(),
-                answer = faker.lorem().characters()
+                answer = faker.lorem().characters(),
+                memorizationLevel = MemorizationLevel.HIGH
             )
         )
         whenever(removeFlashCardUseCase(any()))
@@ -275,7 +279,8 @@ class TestFlashCardsScreenViewModel {
             FlashCard(
                 id = 10L,
                 question = faker.lorem().characters(),
-                answer = faker.lorem().characters()
+                answer = faker.lorem().characters(),
+                memorizationLevel = MemorizationLevel.HIGH
             )
         )
         whenever(updateFlashCardUseCase(any()))

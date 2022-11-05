@@ -14,6 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import uz.androdev.memorization.R
+import uz.androdev.memorization.model.enums.MemorizationLevel
 import uz.androdev.memorization.model.model.FlashCard
 import java.util.UUID
 
@@ -78,7 +79,8 @@ fun FlashCardsListComponentPreview() {
             FlashCard(
                 id = it.toLong(),
                 question = UUID.randomUUID().toString(),
-                answer = UUID.randomUUID().toString()
+                answer = UUID.randomUUID().toString(),
+                memorizationLevel = MemorizationLevel.HIGH
             )
         }
     )

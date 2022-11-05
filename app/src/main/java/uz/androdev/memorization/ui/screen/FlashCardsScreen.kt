@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import uz.androdev.memorization.R
+import uz.androdev.memorization.model.enums.MemorizationLevel
 import uz.androdev.memorization.model.model.FlashCard
 import uz.androdev.memorization.ui.component.FlashCardDialog
 import uz.androdev.memorization.ui.component.FlashCardsListComponent
@@ -318,7 +319,8 @@ fun FlashCardDetailsComponentPreview() {
             flashCard = FlashCard(
                 id = 10L,
                 question = "Who are you?",
-                answer = "I am an Android Engineer"
+                answer = "I am an Android Engineer",
+                memorizationLevel = MemorizationLevel.HIGH
             )
         )
     }
@@ -333,7 +335,8 @@ fun FlashCardScreenPreview() {
                 FlashCard(
                     id = it.toLong(),
                     question = UUID.randomUUID().toString(),
-                    answer = UUID.randomUUID().toString()
+                    answer = UUID.randomUUID().toString(),
+                    memorizationLevel = MemorizationLevel.HIGH
                 )
             }, onCreateFlashCard = { _, _ -> }
         )

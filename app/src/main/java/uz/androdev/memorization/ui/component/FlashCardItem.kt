@@ -12,6 +12,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import uz.androdev.memorization.model.enums.MemorizationLevel
 import uz.androdev.memorization.model.model.FlashCard
 
 /**
@@ -82,7 +83,8 @@ fun FlashCardItemPreview() {
         flashCard = FlashCard(
             id = 100,
             question = "Some question",
-            answer = "Answer to the question"
+            answer = "Answer to the question",
+            memorizationLevel = MemorizationLevel.LOW
         )
     )
 }

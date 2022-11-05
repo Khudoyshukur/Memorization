@@ -3,6 +3,7 @@ package uz.androdev.memorization.factory
 import com.github.javafaker.Faker
 import org.threeten.bp.LocalDateTime
 import uz.androdev.memorization.model.entity.FlashCardEntity
+import uz.androdev.memorization.model.enums.MemorizationLevel
 import uz.androdev.memorization.model.input.FlashCardInput
 import uz.androdev.memorization.model.model.FlashCard
 
@@ -39,7 +40,8 @@ object FlashCardFactory {
         return FlashCard(
             id = 1,
             question = faker.lorem().characters(),
-            answer = faker.lorem().characters()
+            answer = faker.lorem().characters(),
+            memorizationLevel = MemorizationLevel.HIGH
         )
     }
 }

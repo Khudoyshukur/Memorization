@@ -1,5 +1,7 @@
 package uz.androdev.memorization.model.model
 
+import uz.androdev.memorization.model.enums.MemorizationLevel
+
 /**
  * Created by: androdev
  * Date: 24-10-2022
@@ -10,5 +12,6 @@ package uz.androdev.memorization.model.model
 data class FlashCard(
     val id: Long,
     val question: String,
-    val answer: String
+    val answer: String,
+    val memorizationLevel: MemorizationLevel
 )
