@@ -12,8 +12,11 @@ import org.mockito.kotlin.*
 import uz.androdev.memorization.data.datasource.impl.RoomFlashCardDataSourceImpl
 import uz.androdev.memorization.data.db.dao.FlashCardDao
 import uz.androdev.memorization.data.fake.FakeFlashCardDao
+import uz.androdev.memorization.data.util.PracticeFlashCardSelector
 import uz.androdev.memorization.factory.FlashCardFactory
 import uz.androdev.memorization.factory.FolderFactory
+import uz.androdev.memorization.model.enums.MemorizationLevel
+import uz.androdev.memorization.model.input.PracticeFlashCardsFilterInput
 import uz.androdev.memorization.model.model.FlashCard
 import java.util.UUID
 
@@ -29,11 +32,13 @@ class TestRoomFlashCardDataSourceImpl {
 
     private lateinit var flashCardDao: FlashCardDao
     private lateinit var dataSourceImpl: RoomFlashCardDataSourceImpl
+    private lateinit var practiceFlashCardSelector: PracticeFlashCardSelector
 
     @Before
     fun setUp() {
         flashCardDao = Mockito.spy(FakeFlashCardDao())
-        dataSourceImpl = RoomFlashCardDataSourceImpl(flashCardDao)
+        practiceFlashCardSelector = mock()
+        dataSourceImpl = RoomFlashCardDataSourceImpl(flashCardDao, practiceFlashCardSelector)
     }
 
     @Test
@@ -55,7 +60,7 @@ class TestRoomFlashCardDataSourceImpl {
     @Test(expected = SQLiteConstraintException::class)
     fun createFlashCard_whenExceptionThrows_shouldThrowThatException() = runTest {
         flashCardDao = mock()
-        dataSourceImpl = RoomFlashCardDataSourceImpl(flashCardDao)
+        dataSourceImpl = RoomFlashCardDataSourceImpl(flashCardDao, practiceFlashCardSelector)
 
         whenever(flashCardDao.insertFlashCard(any()))
             .thenThrow(SQLiteConstraintException())
@@ -134,7 +139,8 @@ class TestRoomFlashCardDataSourceImpl {
         val flashCardToUpdate = FlashCard(
             id = insertedFlashCardEntity.id,
             question = UUID.randomUUID().toString(),
-            answer = UUID.randomUUID().toString()
+            answer = UUID.randomUUID().toString(),
+            memorizationLevel = MemorizationLevel.HIGH
         )
 
         dataSourceImpl.updateFlashCard(flashCardToUpdate)
@@ -162,5 +168,26 @@ class TestRoomFlashCardDataSourceImpl {
         dataSourceImpl.removeFlashCard(flashCard)
 
         Mockito.verify(flashCardDao).removeFlashCard(eq(flashCard.id))
+    }
+
+    @Test
+    fun getPracticeFlashCards_shouldDelegateToSelector() = runTest {
+        val resultFlashCards = List(10) {
+            FlashCardFactory.createNewFlashCard()
+        }
+        whenever(practiceFlashCardSelector.select(any()))
+            .thenReturn(resultFlashCards)
+
+        val input = PracticeFlashCardsFilterInput(
+            folderId = 10L,
+            size = 10,
+            memorizationLevelPercentages = mapOf(
+                MemorizationLevel.LOW to 100
+            )
+        )
+        val flashCards = dataSourceImpl.getFlashCardsToPractice(input)
+
+        Mockito.verify(practiceFlashCardSelector).select(eq(input))
+        assertEquals(flashCards, resultFlashCards)
     }
 }

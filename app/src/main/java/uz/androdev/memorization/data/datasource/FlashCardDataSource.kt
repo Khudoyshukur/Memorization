@@ -3,6 +3,7 @@ package uz.androdev.memorization.data.datasource
 import android.database.sqlite.SQLiteConstraintException
 import kotlinx.coroutines.flow.Flow
 import uz.androdev.memorization.model.input.FlashCardInput
+import uz.androdev.memorization.model.input.PracticeFlashCardsFilterInput
 import uz.androdev.memorization.model.model.FlashCard
 
 /**
@@ -22,4 +23,7 @@ interface FlashCardDataSource {
     suspend fun updateFlashCard(flashCard: FlashCard)
 
     suspend fun removeFlashCard(flashCard: FlashCard)
+
+    @Throws(IllegalArgumentException::class)
+    suspend fun getFlashCardsToPractice(input: PracticeFlashCardsFilterInput): List<FlashCard>
 }

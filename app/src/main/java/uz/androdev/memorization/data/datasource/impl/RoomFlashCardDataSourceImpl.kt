@@ -6,8 +6,10 @@ import kotlinx.coroutines.flow.map
 import org.threeten.bp.LocalDateTime
 import uz.androdev.memorization.data.datasource.FlashCardDataSource
 import uz.androdev.memorization.data.db.dao.FlashCardDao
+import uz.androdev.memorization.data.util.PracticeFlashCardSelector
 import uz.androdev.memorization.model.entity.FlashCardEntity
 import uz.androdev.memorization.model.input.FlashCardInput
+import uz.androdev.memorization.model.input.PracticeFlashCardsFilterInput
 import uz.androdev.memorization.model.model.FlashCard
 import javax.inject.Inject
 
@@ -19,7 +21,8 @@ import javax.inject.Inject
  */
 
 class RoomFlashCardDataSourceImpl @Inject constructor(
-    private val flashCardDao: FlashCardDao
+    private val flashCardDao: FlashCardDao,
+    private val practiceFlashCardSelector: PracticeFlashCardSelector
 ) : FlashCardDataSource {
     @Throws(SQLiteConstraintException::class)
     override suspend fun createFlashCard(flashCardInput: FlashCardInput) {
@@ -38,7 +41,8 @@ class RoomFlashCardDataSourceImpl @Inject constructor(
                 FlashCard(
                     id = it.id,
                     question = it.question,
-                    answer = it.answer
+                    answer = it.answer,
+                    memorizationLevel = it.memorizationLevel
                 )
             }
         }
@@ -60,5 +64,12 @@ class RoomFlashCardDataSourceImpl @Inject constructor(
 
     override suspend fun removeFlashCard(flashCard: FlashCard) {
         flashCardDao.removeFlashCard(flashCard.id)
+    }
+
+    @Throws(IllegalArgumentException::class)
+    override suspend fun getFlashCardsToPractice(
+        input: PracticeFlashCardsFilterInput
+    ): List<FlashCard> {
+        return practiceFlashCardSelector.select(input)
     }
 }
