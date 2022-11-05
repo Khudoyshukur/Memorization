@@ -1,6 +1,7 @@
 package uz.androdev.memorization.factory
 
 import com.github.javafaker.Faker
+import uz.androdev.memorization.model.enums.MemorizationLevel
 import uz.androdev.memorization.model.input.FlashCardInput
 import uz.androdev.memorization.model.model.FlashCard
 
@@ -18,7 +19,8 @@ object FlashCardFactory {
         return FlashCard(
             id = 1,
             question = faker.lorem().characters(),
-            answer = faker.lorem().characters()
+            answer = faker.lorem().characters(),
+            memorizationLevel = MemorizationLevel.LOW
         )
     }
 
@@ -27,7 +29,8 @@ object FlashCardFactory {
             FlashCard(
                 id = it.toLong(),
                 question = faker.lorem().characters(),
-                answer = faker.lorem().characters()
+                answer = faker.lorem().characters(),
+                memorizationLevel = MemorizationLevel.LOW
             )
         }
     }

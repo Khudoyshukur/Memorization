@@ -190,4 +190,14 @@ class TestRoomFlashCardDataSourceImpl {
         Mockito.verify(practiceFlashCardSelector).select(eq(input))
         assertEquals(flashCards, resultFlashCards)
     }
+
+    @Test
+    fun createFlashCard_shouldCreateFlashCardWithLowMemorizationLevel() = runTest {
+        val input = FlashCardFactory.createFlashCardInput()
+        dataSourceImpl.createFlashCard(input)
+
+        Mockito.verify(flashCardDao).insertFlashCard(argThat {
+            memorizationLevel == MemorizationLevel.LOW
+        })
+    }
 }
