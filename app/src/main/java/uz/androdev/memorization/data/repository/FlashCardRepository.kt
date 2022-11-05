@@ -22,4 +22,7 @@ interface FlashCardRepository {
     suspend fun updateFlashCard(flashCard: FlashCard)
 
     suspend fun removeFlashCard(flashCard: FlashCard)
+
+    @Throws(IllegalArgumentException::class)
+    suspend fun getFlashCardsToPractice(folderId: Long): List<FlashCard>
 }

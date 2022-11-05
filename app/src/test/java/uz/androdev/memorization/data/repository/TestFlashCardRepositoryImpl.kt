@@ -8,11 +8,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mockito
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
+import org.mockito.kotlin.*
 import uz.androdev.memorization.data.datasource.FlashCardDataSource
 import uz.androdev.memorization.data.repository.impl.FlashCardRepositoryImpl
+import uz.androdev.memorization.data.repository.impl.PRACTICE_FLASH_CARD_LIST_SIZE
+import uz.androdev.memorization.data.repository.impl.PRACTICE_FLASH_CARD_MEMORIZATION_LEVEL_PERCENTAGES
 import uz.androdev.memorization.factory.FlashCardFactory
 
 /**
@@ -71,5 +71,26 @@ class TestFlashCardRepositoryImpl {
         flashCardRepositoryImpl.removeFlashCard(flashCard)
 
         Mockito.verify(flashCardDataSource).removeFlashCard(eq(flashCard))
+    }
+
+    @Test
+    fun getFlashCardsToPractice_shouldUseStaticConstants_andShouldDelegateToDataSource() = runTest {
+        val resultFlashCards = List(5) {
+            FlashCardFactory.createNewFlashCard()
+        }
+        whenever(flashCardDataSource.getFlashCardsToPractice(any()))
+            .thenReturn(resultFlashCards)
+
+        val folderId = 10L
+        val flashCards = flashCardRepositoryImpl.getFlashCardsToPractice(folderId)
+
+        assertEquals(flashCards, resultFlashCards)
+        Mockito.verify(flashCardDataSource).getFlashCardsToPractice(
+            argThat {
+                this.folderId == folderId &&
+                        this.size == PRACTICE_FLASH_CARD_LIST_SIZE &&
+                        this.memorizationLevelPercentages == PRACTICE_FLASH_CARD_MEMORIZATION_LEVEL_PERCENTAGES
+            }
+        )
     }
 }
