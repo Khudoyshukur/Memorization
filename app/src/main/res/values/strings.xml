@@ -31,4 +31,7 @@
     <string name="options_menu_icon">Options menu icon</string>
     <string name="folder_name">Folder Name</string>
     <string name="edit_folder">Edit Folder</string>
+    <string name="show_answer_button">Show answer button</string>
+    <string name="show_answer">Show Answer</string>
+    <string name="hide_answer">Hide Answer</string>
 </resources>
