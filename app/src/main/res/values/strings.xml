@@ -34,4 +34,7 @@
     <string name="show_answer_button">Show answer button</string>
     <string name="show_answer">Show Answer</string>
     <string name="hide_answer">Hide Answer</string>
+    <string name="low">Low</string>
+    <string name="medium">Medium</string>
+    <string name="high">High</string>
 </resources>
