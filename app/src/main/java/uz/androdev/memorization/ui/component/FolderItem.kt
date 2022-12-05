@@ -30,6 +30,7 @@ fun FolderItem(
     modifier: Modifier = Modifier,
     folder: Folder,
     onFolderClicked: (folder: Folder) -> Unit = {},
+    onNavigateToPracticeScreen: (folder: Folder) -> Unit = {},
     onUpdateFolded: (folder: Folder) -> Unit = {},
     onRemoveFolded: (folder: Folder) -> Unit = {},
 ) {
@@ -89,6 +90,15 @@ fun FolderItem(
                     expanded = showDropDownMenu,
                     onDismissRequest = { showDropDownMenu = false },
                 ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(stringResource(R.string.practice))
+                        },
+                        onClick = {
+                            showDropDownMenu = false
+                            onNavigateToPracticeScreen(folder)
+                        }
+                    )
                     DropdownMenuItem(
                         text = {
                             Text(stringResource(R.string.remove))

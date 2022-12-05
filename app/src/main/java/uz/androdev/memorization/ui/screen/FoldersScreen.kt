@@ -30,6 +30,7 @@ import uz.androdev.memorization.ui.viewmodel.FoldersScreenViewModel
 @Composable
 fun FolderScreenRoute(
     onNavigateToItemsScreen: (Folder) -> Unit,
+    onNavigateToPracticeScreen: (Folder) -> Unit,
     viewModel: FoldersScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -38,6 +39,7 @@ fun FolderScreenRoute(
     FoldersScreen(
         folders = uiState.folders,
         onFolderClicked = onNavigateToItemsScreen,
+        onNavigateToPracticeScreen = onNavigateToPracticeScreen,
         onCreateFolder = {
             viewModel.processAction(Action.CreateFolder(it))
         },
@@ -72,7 +74,8 @@ fun FoldersScreen(
     onFolderClicked: (Folder) -> Unit = {},
     onCreateFolder: (FolderInput) -> Unit = {},
     onRemoveFolder: (Folder) -> Unit = {},
-    onUpdateFolder: (Folder) -> Unit = {}
+    onUpdateFolder: (Folder) -> Unit = {},
+    onNavigateToPracticeScreen: (Folder) -> Unit = {},
 ) {
     var showCreateFolderDialog by remember {
         mutableStateOf(false)
@@ -88,6 +91,7 @@ fun FoldersScreen(
                 modifier = Modifier.padding(it),
                 folders = folders,
                 onFolderClicked = onFolderClicked,
+                onNavigateToPracticeScreen = onNavigateToPracticeScreen,
                 onRemoveFolded = onRemoveFolder,
                 onUpdateFolded = { folder ->
                     folderToEdit = folder

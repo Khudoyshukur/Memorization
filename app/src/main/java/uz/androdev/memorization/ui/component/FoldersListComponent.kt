@@ -29,6 +29,7 @@ fun FoldersListComponent(
     modifier: Modifier = Modifier,
     folders: List<Folder>?,
     onFolderClicked: (Folder) -> Unit = {},
+    onNavigateToPracticeScreen: (Folder) -> Unit = {},
     onUpdateFolded: (folder: Folder) -> Unit = {},
     onRemoveFolded: (folder: Folder) -> Unit = {},
 ) {
@@ -60,6 +61,7 @@ fun FoldersListComponent(
                     FolderItem(
                         folder = it,
                         onFolderClicked = onFolderClicked,
+                        onNavigateToPracticeScreen = onNavigateToPracticeScreen,
                         onUpdateFolded = onUpdateFolded,
                         onRemoveFolded = onRemoveFolded
                     )

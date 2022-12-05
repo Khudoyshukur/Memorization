@@ -43,12 +43,26 @@ class PracticeFlashCardSelector @Inject constructor(
                 memorizationLevel = level
             ).map(flashCardEntityToFlashCardMapper::invoke)
 
+            if (flashCards.isEmpty()) {
+                continue
+            }
+
             val inputSize = (size * percentage / 100f).roundToInt()
             if (inputSize > result.size) {
                 val delta = inputSize - result.size
-                result.addAll(flashCards.subList(0, delta))
+                val toIndex = if (delta < flashCards.size) {
+                    delta
+                } else {
+                    flashCards.size - 1
+                }
+                result.addAll(flashCards.subList(0, toIndex))
             } else {
-                result.addAll(flashCards.subList(0, inputSize))
+                val toIndex = if (inputSize < flashCards.size) {
+                    inputSize
+                } else {
+                    flashCards.size - 1
+                }
+                result.addAll(flashCards.subList(0, toIndex))
 
                 if (inputSize == result.size) {
                     break

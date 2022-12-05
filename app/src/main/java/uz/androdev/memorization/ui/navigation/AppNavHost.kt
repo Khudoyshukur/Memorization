@@ -12,6 +12,7 @@ import androidx.navigation.navArgument
 import uz.androdev.memorization.ui.navigation.Arguments.ARGUMENT_FOLDER_ID
 import uz.androdev.memorization.ui.screen.FlashCardScreenRoute
 import uz.androdev.memorization.ui.screen.FolderScreenRoute
+import uz.androdev.memorization.ui.screen.PracticeFlashCardScreenRoute
 
 /**
  * Created by: androdev
@@ -27,6 +28,11 @@ sealed class Screen(val route: String) {
             return "flash_cards/$folderId"
         }
     }
+    object PracticeFlashCardsScreen : Screen("practice_flash_cards/{${ARGUMENT_FOLDER_ID}}") {
+        fun getNavigateRoute(folderId: Long): String {
+            return "practice_flash_cards/$folderId"
+        }
+    }
 }
 
 @Composable
@@ -40,6 +46,11 @@ fun AppNavHost(
                     navController.navigate(
                         Screen.FlashCardsScreen.getNavigateRoute(it.id)
                     )
+                },
+                onNavigateToPracticeScreen = {
+                    navController.navigate(
+                        Screen.PracticeFlashCardsScreen.getNavigateRoute(it.id)
+                    )
                 }
             )
         }
@@ -51,6 +62,19 @@ fun AppNavHost(
             )
         ) {
             FlashCardScreenRoute()
+        }
+
+        composable(
+            Screen.PracticeFlashCardsScreen.route,
+            arguments = listOf(
+                navArgument(ARGUMENT_FOLDER_ID) { type = NavType.LongType }
+            )
+        ) {
+            PracticeFlashCardScreenRoute(
+                onNavigateBack = {
+                    navController.navigateUp()
+                }
+            )
         }
     }
 }

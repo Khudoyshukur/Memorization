@@ -69,6 +69,10 @@ class PracticeModel @Inject constructor(
     private fun hasNext(): Boolean {
         return currentFlashCardIndex + 1 < flashCards.size
     }
+
+    companion object {
+        private const val TAG = "PracticeModel"
+    }
 }
 
 sealed interface ModelInput {

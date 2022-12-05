@@ -45,12 +45,14 @@ fun PracticeFlashCardComponent(
             .padding(16.dp)
     ) {
         Text(
-            text = flashCard.question
+            text = flashCard.question,
+            style = MaterialTheme.typography.titleMedium
         )
         AnimatedVisibility(visible = showAnswer) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = flashCard.answer
+                text = flashCard.answer,
+                style = MaterialTheme.typography.titleMedium
             )
         }
         Spacer(modifier = Modifier.height(16.dp))

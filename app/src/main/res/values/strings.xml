@@ -37,4 +37,10 @@
     <string name="low">Low</string>
     <string name="medium">Medium</string>
     <string name="high">High</string>
+    <string name="what_is_your_memorization_level">What is your memorization level?</string>
+    <string name="failed_to_initialize_practice">We encountered an issue while initializing practice for you. Try again later!</string>
+    <string name="go_back">Go Back</string>
+    <string name="no_flash_cards_for_practice">No Flash Cards found for the practice.</string>
+    <string name="practice_finished_message">Congratulations!!! You have completed the practice.</string>
+    <string name="practice">Practice</string>
 </resources>
